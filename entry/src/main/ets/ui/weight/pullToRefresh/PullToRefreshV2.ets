@@ -23,22 +23,22 @@ const IS_PULL_UP_1 = 41;
 const IS_PULL_UP_2 = 42;
 const IS_LOADING = 5;
 
-@Component
-export struct PullToRefresh {
-  @Link data: Object[];
-  scroller: Scroller = new Scroller();
+@ComponentV2
+export struct PullToRefreshV2 {
+  @Param data?: Object[] | undefined = undefined;
+  @Param scroller: Scroller = new Scroller();
   @BuilderParam customList?: () => void;
-  refreshConfigurator?: PullToRefreshConfigurator;
-  mWidth?: Length = '100%';
-  mHeight?: Length = '100%';
-  onRefresh?: () => Promise<string> = () => {
+  @Param refreshConfigurator?: PullToRefreshConfigurator = new PullToRefreshConfigurator();
+  @Param mWidth?: Length = '100%';
+  @Param mHeight?: Length = '100%';
+  @Param onRefresh?: () => Promise<string> = () => {
     return new Promise<string>((resolve, reject) => {
       setTimeout(() => {
         resolve('刷新失败');
       }, 1000);
     });
   };
-  onLoadMore?: () => Promise<string> = () => {
+  @Param onLoadMore?: () => Promise<string> = () => {
     return new Promise<string>((resolve, reject) => {
       setTimeout(() => {
         resolve('');
@@ -48,21 +48,21 @@ export struct PullToRefresh {
   // 自定义下拉动画
   @BuilderParam customRefresh?: (() => void) | null;
   //开启自定义下拉动画
-  onAnimPullDown?: (value?: number, width?: number, height?: number) => void;
-  onAnimRefreshing?: (value?: number, width?: number, height?: number) => void;
+  @Param onAnimPullDown?: (value?: number, width?: number, height?: number) => void | undefined = undefined;
+  @Param onAnimRefreshing?: (value?: number, width?: number, height?: number) => void | undefined = undefined;
   // 自定义上拉动画
   @BuilderParam customLoad?: (() => void) | null;
-  onAnimPullUp?: (value?: number, width?: number, height?: number) => void;
-  onAnimLoading?: (value?: number, width?: number, height?: number) => void;
+  @Param onAnimPullUp?: (value?: number, width?: number, height?: number) => void | undefined = undefined;
+  @Param onAnimLoading?: (value?: number, width?: number, height?: number) => void | undefined = undefined;
   //-----------------------------以下为组件内自用属性-----------------------------//
-  @State private mHeightNumber?: number = 0;
-  @State private trYTop?: number = 0;
-  @State private trYBottom?: number = 0;
-  @State private state?: number = IS_FREE;
-  @State private refreshText?: string = '';
-  @State private loadText?: ResourceStr = '';
-  @State private angle1?: number | string = 0;
-  @State private angle2?: number | string = 0;
+  @Local private mHeightNumber?: number = 0;
+  @Local private trYTop?: number = 0;
+  @Local private trYBottom?: number = 0;
+  @Local private state?: number = IS_FREE;
+  @Local private refreshText?: string = '';
+  @Local private loadText?: ResourceStr = '';
+  @Local private angle1?: number | string = 0;
+  @Local private angle2?: number | string = 0;
   private mWidthNumber?: number = 0;
   private touchYOld?: number = 0;
   private touchYNew?: number = 0;
@@ -82,14 +82,13 @@ export struct PullToRefresh {
   private panOption: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Up | PanDirection.Down })
 
   aboutToAppear() {
-    if (!this.refreshConfigurator) {
-      this.refreshConfigurator = new PullToRefreshConfigurator();
-    }
+    // if (!this.refreshConfigurator) {
+    //   this.refreshConfigurator = new PullToRefreshConfigurator();
+    // }
   }
 
   private initCanvas(): void {
     if (this.refreshRingOx == 0) {
-
       if (this.canvasRefresh !== undefined && this.refreshConfigurator !== undefined) {
         this.canvasRefresh.strokeStyle = this.refreshConfigurator.getRefreshColor();
         this.canvasRefresh.fillStyle = this.refreshConfigurator.getRefreshColor();

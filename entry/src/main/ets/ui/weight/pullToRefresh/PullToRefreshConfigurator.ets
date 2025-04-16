@@ -25,13 +25,14 @@ export class PullToRefreshConfigurator {
   private refreshTextColor?: ResourceColor = '#999999'; // 下拉加载完毕后提示文本的字体颜色
   private refreshTextSize?: number | string | Resource = 18; // 下拉加载完毕后提示文本的字体大小
   private refreshAnimDuration?: number = 1000; // 下拉动画执行一次的时间
+  private refreshCompleteTextHoldTime?: number = 1000; //下拉刷新完毕后, 刷新成功文本停留的时间
   private loadImgHeight?: number = 30; // 上拉图片高度
   private loadBackgroundColor?: ResourceColor = 'rgba(0,0,0,0)'; // 上拉动画区域背景色
   private loadTextColor?: ResourceColor = '#999999'; // 上拉文本的字体颜色
   private loadTextSize?: number | string | Resource = 18; // 上拉文本的字体大小
-  private loadTextPullUp1?: string = '正在上拉刷新...'; // 上拉1阶段文本
-  private loadTextPullUp2?: string = '放开刷新'; // 上拉2阶段文本
-  private loadTextLoading?: string = '正在玩命加载中...'; // 上拉加载更多中时的文本
+  private loadTextPullUp1?: ResourceStr = $r("app.string.Refreshing"); // 上拉1阶段文本
+  private loadTextPullUp2?: ResourceStr = $r("app.string.ReleaseToRefresh"); // 上拉2阶段文本
+  private loadTextLoading?: ResourceStr = $r("app.string.Loading_at_risk"); // 上拉加载更多中时的文本
 
   setHasRefresh(hasRefresh: boolean) {
     this.hasRefresh = hasRefresh;
@@ -85,6 +86,15 @@ export class PullToRefreshConfigurator {
 
   getAnimDuration() {
     return this.animDuration;
+  }
+
+  setRefreshCompleteTextHoldTime(refreshCompleteTextHoldTime: number) {
+    this.refreshCompleteTextHoldTime = refreshCompleteTextHoldTime;
+    return this;
+  }
+
+  getRefreshCompleteTextHoldTime(): number {
+    return this.refreshCompleteTextHoldTime !== undefined ? this.refreshCompleteTextHoldTime : 1000;
   }
 
   getRefreshWidth(): number {
@@ -193,7 +203,7 @@ export class PullToRefreshConfigurator {
     return 0;
   }
 
-  setLoadTextPullUp1(loadTextPullUp1: string) {
+  setLoadTextPullUp1(loadTextPullUp1: ResourceStr) {
     this.loadTextPullUp1 = loadTextPullUp1;
     return this;
   }
@@ -202,7 +212,7 @@ export class PullToRefreshConfigurator {
     return this.loadTextPullUp1;
   }
 
-  setLoadTextPullUp2(loadTextPullUp2: string) {
+  setLoadTextPullUp2(loadTextPullUp2: ResourceStr) {
     this.loadTextPullUp2 = loadTextPullUp2;
     return this;
   }
@@ -211,12 +221,12 @@ export class PullToRefreshConfigurator {
     return this.loadTextPullUp2;
   }
 
-  setLoadTextLoading(loadTextLoading: string) {
+  setLoadTextLoading(loadTextLoading: ResourceStr) {
     this.loadTextLoading = loadTextLoading;
     return this;
   }
 
-  getLoadTextLoading(): string {
+  getLoadTextLoading(): ResourceStr {
     return this.loadTextLoading !== undefined ? this.loadTextLoading : "";
   }
 }

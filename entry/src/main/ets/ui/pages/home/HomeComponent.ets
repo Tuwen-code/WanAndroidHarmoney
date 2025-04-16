@@ -173,15 +173,15 @@ export struct HomeComponent {
   onTapBackToTop() {
     this.controller.refresh()
   }
+  private scroller: Scroller = new Scroller();
 
   @Builder
   private contentLayout() {
     PullToRefresh({
       // 必传项，列表组件所绑定的数据
       data: $dataSource,
+      scroller:this.scroller,
       // 必传项，自定义主体布局，内部有列表或宫格组件
-      controller: this.controller,
-      refreshConfigurator: this.configurator,
       customList: () => {
         this.ListLayout()
       },
@@ -204,7 +204,7 @@ export struct HomeComponent {
 
   @Builder
   private ListLayout() {
-    List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
+    List({ space: 0, initialIndex: 0,  scroller:this.scroller }) {
       LazyForEach(this.dataSource, (item: object, index: number) => {
         ListItem() {
           if (Array.isArray(item)) {
@@ -237,9 +237,6 @@ export struct HomeComponent {
       }, (item : object, index) => JSON.stringify(item) +
         index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
-    .onScroll((_xOffset: number, _yOffset: number) => {
-      this.onScroll(this.controller.getScroller().currentOffset().yOffset)
-    })
     .width('100%')
     .height('100%')
     .edgeEffect(EdgeEffect.None)

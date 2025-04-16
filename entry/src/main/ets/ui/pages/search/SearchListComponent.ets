@@ -65,6 +65,7 @@ export struct SearchListComponent {
       .width('100%')
       .height('100%')
   }
+  private scroller: Scroller = new Scroller();
 
   @Builder
   private contentLayout() {
@@ -72,7 +73,7 @@ export struct SearchListComponent {
       // 必传项，列表组件所绑定的数据
       data: $dataSource,
       // 必传项，自定义主体布局，内部有列表或宫格组件
-      controller: this.controller,
+      scroller: this.scroller,
       refreshConfigurator: this.configurator,
       customList: () => {
         this.ListLayout()
@@ -91,7 +92,7 @@ export struct SearchListComponent {
 
   @Builder
   private ListLayout() {
-    List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
+    List({ space: 0, initialIndex: 0, scroller: this.scroller }) {
       LazyForEach(this.dataSource, (item: CommonType, index: number) => {
         ListItem() {
           ArticleItemLayout({

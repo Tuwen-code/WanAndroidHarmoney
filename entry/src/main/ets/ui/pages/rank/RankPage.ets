@@ -69,6 +69,7 @@ export struct RankPage {
     .width('100%')
     .height('100%')
   }
+  private scroller: Scroller = new Scroller();
 
   @Builder
   private refreshLayout() {
@@ -76,7 +77,7 @@ export struct RankPage {
       // 必传项，列表组件所绑定的数据
       data: $datas,
       // 必传项，自定义主体布局，内部有列表或宫格组件
-      controller: this.controller,
+      scroller: this.scroller,
       refreshConfigurator: this.configurator,
       customList: () => {
         this.listLayout()
@@ -116,7 +117,7 @@ export struct RankPage {
   @Builder
   private listLayout() {
     Stack() {
-      List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
+      List({ space: 0, initialIndex: 0, scroller: this.scroller }) {
         ForEach(this.datas, (item: IRankInfo, index: number) => {
           ListItem() {
             this.rankInfoItemLayout(item, index)

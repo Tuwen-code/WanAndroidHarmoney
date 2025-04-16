@@ -29,6 +29,8 @@ export struct CoinPage {
   private intervalId: number|null = null
   @State controller: PullToRefreshController = new PullToRefreshController()
   configurator: PullToRefreshConfigurator = new PullToRefreshConfigurator()
+  private scroller: Scroller = new Scroller();
+
   @State title: string = '我的积分'
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //弹窗
@@ -128,8 +130,8 @@ export struct CoinPage {
     PullToRefresh({
       // 必传项，列表组件所绑定的数据
       data: $dataSource,
-      // 必传项，自定义主体布局，内部有列表或宫格组件
-      controller: this.controller,
+      // 必传项，需绑定传入主体布局内的列表或宫格组件
+      scroller: this.scroller,
       refreshConfigurator: this.configurator,
       customList: () => {
         this.listLayout()
@@ -154,7 +156,7 @@ export struct CoinPage {
   @Builder
   private listLayout() {
     Stack() {
-      List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
+      List({ space: 0, initialIndex: 0, scroller: this.scroller}) {
         LazyForEach(this.dataSource, (item: ICoinListInfo) => {
           ListItem() {
             CoinListItemLayout({
