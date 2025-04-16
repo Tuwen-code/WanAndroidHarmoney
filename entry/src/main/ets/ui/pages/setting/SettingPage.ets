@@ -123,11 +123,15 @@ export struct SettingPage {
     this.appCacheText = ByteConverter.convertBytes(status.cacheSize)
   }
 
+  @Builder ff(){
+
+  }
   build() {
     Flex({ direction: FlexDirection.Column }) {
       ActionBarWeight({
         title: this.title,
         showBackButton: true,
+        rightRowElement : this.ff.bind(this),
         onBackPress: () => {
           RouterDelegate.back()
         },

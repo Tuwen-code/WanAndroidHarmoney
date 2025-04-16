@@ -6,7 +6,8 @@ export struct OptionItemLayout {
   subDesc: string = ""
   onItemClick: () => void = () => {
   }
-  @BuilderParam itemRightLayout: () => void
+  @BuilderParam itemRightLayout: () => void  = this.default
+  @Builder default(){}
   @Link theme: Wanthemes.IWanTheme
 
   build() {

@@ -11,12 +11,16 @@ export struct CollectPage {
   private controller: TabsController = new TabsController()
   @State title: string = "我的收藏"
   private theme = globalVM_Setting.getTheme()
+  @Builder
+  private rightRowLayout() {
 
+  }
   build() {
     Flex({ direction: FlexDirection.Column }) {
       ActionBarWeight({
         title: this.title,
         showBackButton: true,
+        rightRowElement: this.rightRowLayout.bind(this), //这里需要绑定本页面，不然rightRowLayout中的this是ActionBarWeight的this，造成undefined
         onBackPress: () => {
           RouterDelegate.back()
         },
