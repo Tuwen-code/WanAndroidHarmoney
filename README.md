@@ -1,14 +1,15 @@
 <img width="105" alt="ic_app_logo" src="https://github.com/RedRackham-R/WanAndroidHarmoney/assets/22745782/bb255b7e-ce9f-40e9-8c7b-f85b0f7efc32">
+fork了其它api9的鸿蒙wanandroid项目学习 并适配了ArtTs api12
+
 
 # WanAndroidHarmoney
 
-使用 ArkTS API9 实现的鸿蒙玩安卓客户端。[玩安卓官网 https://www.wanandroid.com/](https://www.wanandroid.com/)
+使用 ArkTS API12 实现的鸿蒙玩安卓客户端。[玩安卓官网 https://www.wanandroid.com/](https://www.wanandroid.com/)
 
 ## 开发运行环境
 
-- **DevEco Studio版本**：DevEco Studio 4.0 Release
-- **API 版本**：9
-- **OS 版本**：HarmoneyOS 3.1.0 Developer Release （模拟器）
+- **DevEco Studio版本**：DevEco Studio 5.0.0 Release
+- **API 版本**：12
 
 ## 使用三方框架
 
