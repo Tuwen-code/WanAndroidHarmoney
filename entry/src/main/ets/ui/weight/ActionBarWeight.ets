@@ -6,11 +6,10 @@ import { Wanthemes } from '../../theme/WanThemes'
 @Component
 export struct ActionBarWeight {
   private readonly TAG = 'ActionBarWeight_' + extUtilsGenerateRadomUUID()
-  @BuilderParam rightRowElement: (() => void) = () => {
-  }
+  @BuilderParam rightRowElement: (() => void)
   @Link title: string
   showBackButton: boolean = true
-  onBackPress?: (() => void) = null
+  onBackPress?: (() => void)  = ()=>{}
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   private leftLayoutArea: Area | null = null
   private rightLayoutArea: Area | null = null

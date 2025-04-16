@@ -1,4 +1,5 @@
 import { AxiosResponse } from '@ohos/axios'
+import { CommonType } from '../../../ext/TypeExt'
 import { AxiosClientResponseInterceptor } from '../../base/interceptors/AxiosClientResponseInterceptor'
 import { IWanCommonResponse } from '../response/IWanCommonResponse'
 
@@ -10,7 +11,7 @@ export class HttpResponseLoggerInterceptor implements AxiosClientResponseInterce
     console.log("http headers: " + JSON.stringify(response.headers))
     console.log("http config: " + JSON.stringify(response.config))
     if (response.status === 200) {
-      console.log("http data: " + JSON.stringify(response.data as IWanCommonResponse<any>))
+      console.log("http data: " + JSON.stringify(response.data as IWanCommonResponse<CommonType>))
     }
 
     return response

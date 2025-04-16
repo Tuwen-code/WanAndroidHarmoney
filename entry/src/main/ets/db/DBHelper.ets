@@ -1,10 +1,11 @@
 import relationalStore from '@ohos.data.relationalStore'
+import { BusinessError } from '@kit.BasicServicesKit'
 
 export class DBHelper {
   private static dbMap = new Map<string, relationalStore.RdbStore>()
 
   static getRdbStore(dbName: string): relationalStore.RdbStore | null {
-    let rdbStore = this.dbMap.get(dbName)
+    let rdbStore = DBHelper.dbMap.get(dbName)
     if (!rdbStore) {
       return null
     } else {
@@ -22,13 +23,13 @@ export class DBHelper {
         error("param error context" + context + "    config:" + config.name)
         return
       }
-      let rdbStore = this.dbMap.get(config.name)
+      let rdbStore = DBHelper.dbMap.get(config.name)
 
       if (!rdbStore) {
         relationalStore.getRdbStore(context, config).then(rdbStore => {
-          this.dbMap.set(config.name, rdbStore)
+          DBHelper.dbMap.set(config.name, rdbStore)
           success(rdbStore)
-        }).catch(err => {
+        }).catch((err: BusinessError) => {
           error(err)
         })
       } else {

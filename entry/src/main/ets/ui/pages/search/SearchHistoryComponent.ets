@@ -7,7 +7,7 @@ import { ComfrimDialog } from '../../dialog/ComfrimDialog'
 
 @Component
 export struct SearchHistoryComponent {
-  onTagPress: (word: string) => void
+  onTagPress: (word: string) => void = ()=> {}
   @Link hotKeys: Array<IHotKey>
   @State hotKeysColors: ResourceColor[] = [
     Color.Red,
@@ -24,16 +24,16 @@ export struct SearchHistoryComponent {
   private scroller: Scroller = new Scroller()
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //弹窗
-  private comfrimDialogController: CustomDialogController = new CustomDialogController({
+  private comfrimDialogController: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
       message: '确认删除搜索记录吗？',
       onComfrim: () => {
         this.historyKeys = []
         globalVM_WanDB.deleteAllSearchKeywordsHistory()
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       },
       onCancel: () => {
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -120,7 +120,7 @@ export struct SearchHistoryComponent {
           .objectFit(ImageFit.Auto)
           .onClick(() => {
             extUIHideKeybroad()
-            this.comfrimDialogController.open()
+            this.comfrimDialogController?.open()
           })
           .margin({
             right: 8

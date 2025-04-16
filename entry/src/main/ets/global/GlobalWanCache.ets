@@ -1,6 +1,7 @@
 import preferences from '@ohos.data.preferences'
 import { PreferencesHelper } from '../db/PreferencesHelper'
 import { WanConstant } from './WanConstant'
+import { ValueType } from '@ohos.data.ValuesBucket'
 
 
 export class GlobalWanCache {
@@ -12,13 +13,15 @@ export class GlobalWanCache {
 
 
   async put(key: string, value: preferences.ValueType) {
-    await this.preferences.put(key, value)
-    await this.preferences.flush()
+    await this.preferences?.put(key, value)
+    await this.preferences?.flush()
   }
 
   async get(key: string, defaultValue: preferences.ValueType): Promise<preferences.ValueType> {
-    const result = await this.preferences.get(key, defaultValue)
-    return result
+    const result = await this.preferences?.get(key, defaultValue)
+    return result ?? new Promise<boolean>((resolve, reject) => {
+      reject()
+    })
   }
 }
 

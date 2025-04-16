@@ -15,9 +15,9 @@ export class GlobalUserViewModel {
   // 当前账号登录信息
   private loginInfo?: ILoginRegist | null = null;
   // 登录账户cookie
-  private cookie: string = null;
+  private cookie: string | null | undefined= null;
   // 用户信息
-  private userInfo?: IUserInfo | null = null;
+  private userInfo?: IUserInfo | null  = null;
 
   constructor() {
   }
@@ -43,7 +43,7 @@ export class GlobalUserViewModel {
    * 获取用户信息
    * @returns
    */
-  getUserInfo(): IUserInfo | null {
+  getUserInfo(): IUserInfo | null | undefined{
     return this.userInfo;
   }
 
@@ -52,15 +52,15 @@ export class GlobalUserViewModel {
    * @returns
    */
   getLoginInfo(): ILoginRegist | null {
-    return this.loginInfo;
+    return this.loginInfo ?? null;
   }
 
   /**
    * 获取当前用户的cookie
    * @returns
    */
-  getCookie(): string | null {
-    return this.cookie;
+  getCookie(): string | null  {
+    return this.cookie ?? null;
   }
 
   /**
@@ -85,13 +85,13 @@ export class GlobalUserViewModel {
    * @param cookie
    * @param password
    */
-  private async updateLoginInfo(loginInfo?: ILoginRegist, cookie?: string, password?: string) {
+  private async updateLoginInfo(loginInfo?: ILoginRegist, cookie?: string , password?: string) {
     await lock.acquire();
     try {
       this.loginInfo = loginInfo;
       this.cookie = cookie;
-      if (password !== null) {
-        globalVM_WanDB.saveLoginInfo(loginInfo.id, JSON.stringify(loginInfo), cookie, password);
+      if (password !== null && loginInfo !== undefined && cookie !== null ) {
+        globalVM_WanDB.saveLoginInfo(loginInfo.id, JSON.stringify(loginInfo), cookie??"", password??"");
       }
     } finally {
       lock.release();
@@ -176,7 +176,7 @@ export class GlobalUserViewModel {
         await this.updateLoginInfo(loginInfo, cookie, password);
         EventBus.getInstance().post(WanEventId.EVENT_LOGIN, new LoginRegistEvent(true));
         EventBus.getInstance().post(WanEventId.EVENT_UPDATE_USER_INFO, new UserInfoUpdateEvent(true));
-        if (user_info !== null || user_info.length > 0) {
+        if (user_info !== null && user_info.length > 0) {
           await this.updateUserInfo(JSON.parse(user_info) as IUserInfo);
           EventBus.getInstance().post(WanEventId.EVENT_UPDATE_USER_INFO, new UserInfoUpdateEvent(false));
         }
@@ -191,11 +191,11 @@ export class GlobalUserViewModel {
    * 登出，发布登出事件
    */
   async loginOut() {
-    if (this.loginInfo !== null) {
+    if (this.loginInfo !== null && this.loginInfo !== undefined) {
       globalVM_WanDB.updateLoginState(this.loginInfo.id, 0)
     }
-    await this.updateLoginInfo(null, null, null)
-    await this.updateUserInfo(null)
+    await this.updateLoginInfo(undefined, undefined, undefined)
+    await this.updateUserInfo(undefined)
     EventBus.getInstance().post(WanEventId.EVENT_LOGIN_OUT)
   }
 

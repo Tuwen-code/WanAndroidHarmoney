@@ -6,13 +6,12 @@ import { GlobalSearchHistoryDBModel } from '../model/GlobalSearchHistoryDBModel'
 
 export class GlobalWanDBViewModel {
   private isInited = false
-  private store: relationalStore.RdbStore | null
-  private wanUserModel: GlobalUserDBModel
-  private searchHistoryModel: GlobalSearchHistoryDBModel
-
+  private store: relationalStore.RdbStore | null = null
+  private wanUserModel: GlobalUserDBModel | null = null
+  private searchHistoryModel: GlobalSearchHistoryDBModel| null = null
   async deleteAllSearchKeywordsHistory() {
     if (this.isReady()) {
-      await this.searchHistoryModel.deleteAllKeywords()
+      await this.searchHistoryModel?.deleteAllKeywords()
     }
   }
 
@@ -22,7 +21,7 @@ export class GlobalWanDBViewModel {
    */
   async addSearchKeywords(word: string) {
     if (this.isReady()) {
-      await this.searchHistoryModel.addSearchKeywords(word)
+      await this.searchHistoryModel?.addSearchKeywords(word)
     }
   }
 
@@ -32,8 +31,8 @@ export class GlobalWanDBViewModel {
    * @returns
    */
   async fetchSearchKeywords(): Promise<Array<string>> {
-    if (this.isReady()) {
-      return this.searchHistoryModel.fetchSearchKeywords()
+    if (this.isReady() && this.searchHistoryModel !==null) {
+      return this.searchHistoryModel?.fetchSearchKeywords()
     } else {
       return new Promise((_resolve, reject) => {
         reject(" WanDB is not ready!")
@@ -47,7 +46,7 @@ export class GlobalWanDBViewModel {
    * 返回依次为：id，login_info，user_info，cookie，password，login_state .为空则是没有登录账户
    */
   async fetchLocalLoginInfo(): Promise<[number, string, string, string, string, number] | null> {
-    if (this.isReady()) {
+    if (this.isReady() && this.wanUserModel !== null) {
       return this.wanUserModel.fetchLocalLoginInfo()
     } else {
       return new Promise((_resolve, reject) => {
@@ -64,7 +63,7 @@ export class GlobalWanDBViewModel {
    */
   async updateUserInfo(id: number, user_info: string) {
     if (this.isReady()) {
-      await this.wanUserModel.updateUserInfo(id, user_info)
+      await this.wanUserModel?.updateUserInfo(id, user_info)
     }
   }
 
@@ -76,7 +75,7 @@ export class GlobalWanDBViewModel {
    */
   async updateLoginState(id: number, login_state: number) {
     if (this.isReady()) {
-      await this.wanUserModel.updateLoginState(id, login_state)
+      await this.wanUserModel?.updateLoginState(id, login_state)
     }
   }
 
@@ -91,7 +90,7 @@ export class GlobalWanDBViewModel {
   async saveLoginInfo(id: number, loginInfoJson: string, cookie: string, password: string) {
 
     if (this.isReady()) {
-      await this.wanUserModel.saveLoginInfo(id, loginInfoJson, cookie, password)
+      await this.wanUserModel?.saveLoginInfo(id, loginInfoJson, cookie, password)
     }
   }
 

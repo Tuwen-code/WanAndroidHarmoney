@@ -29,7 +29,7 @@ export class GlobalSearchHistoryDBModel {
   async addSearchKeywords(word: string) {
     let predicates = new relationalStore.RdbPredicates(this.TABLE_SEARCH_HISTORY)
     predicates.equalTo("word", word)
-    let querySet: relationalStore.ResultSet
+    let querySet: relationalStore.ResultSet | null = null
 
     try {
       querySet = await this.store.query(predicates)
@@ -38,17 +38,19 @@ export class GlobalSearchHistoryDBModel {
         await this.store.executeSql(this.SQL_INSERT_OR_REPLACE_WORD, params)
       }
     } catch (err) {
+    } finally {
+      if (querySet !== null) {
+        querySet.close()
+      }
     }
-    if (querySet !== null) {
-      querySet.close()
-    }
+
   }
 
 
   async fetchSearchKeywords(): Promise<Array<string>> {
     let predicates = new relationalStore.RdbPredicates(this.TABLE_SEARCH_HISTORY)
     predicates.isNotNull('word')
-    let resultSet: relationalStore.ResultSet
+    let resultSet: relationalStore.ResultSet | null = null
     try {
       resultSet = await this.store.query(predicates, ['word'])
       let retArray = new Array<string>()
@@ -66,7 +68,7 @@ export class GlobalSearchHistoryDBModel {
       })
     } catch (err) {
       if (resultSet !== null) {
-        resultSet.close()
+        resultSet?.close()
       }
       return new Promise((_resolve, reject) => {
         reject(err)

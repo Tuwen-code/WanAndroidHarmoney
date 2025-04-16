@@ -1,9 +1,11 @@
+import { CommonType } from "../../../ext/TypeExt";
+
 /**
  * 玩安卓登录以及注册接口响应数据类
  */
 export interface ILoginRegist {
   admin: boolean;
-  chapterTops: any[];
+  chapterTops: CommonType[];
   coinCount: number;
   collectIds: number[];
   email: string;

@@ -1,3 +1,5 @@
+import { CommonType } from "../../../ext/TypeExt";
+
 /**
  * 用户信息
  */
@@ -17,7 +19,7 @@ interface CoinData {
 
 interface UserData {
   admin: boolean;
-  chapterTops: any[]; 
+  chapterTops: CommonType[];
   coinCount: number; 
   collectIds: number[]; 
   email: string; 

@@ -13,6 +13,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import collectedListViewModel from '../../../viewmodel/CollectedListViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 @Component
 export struct CollectedUrlListComponent {
@@ -24,7 +25,7 @@ export struct CollectedUrlListComponent {
   private deleteIndex: number = -1
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //弹窗
-  private comfrimDialogController: CustomDialogController = new CustomDialogController({
+  private comfrimDialogController: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
       message: '是否取消收藏 \n \n《' + (this.dataSource.getData(this.deleteIndex) as ICollectedUrl).name + '》',
       onComfrim: () => {
@@ -32,10 +33,10 @@ export struct CollectedUrlListComponent {
         item.extIsCollecting = true
         this.dataSource.notifyDataChange(this.deleteIndex)
         globalVM_Collect.uncollectUrl(item.id)
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       },
       onCancel: () => {
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -60,17 +61,18 @@ export struct CollectedUrlListComponent {
 
     globalVM_Collect.subscribeCollectUrlEvent(this.TAG, (event) => {
       const realEvent = event.data as CollectUrlEvent
-      this.dataSource.addData({
-        desc: realEvent.desc,
-        icon: realEvent.icon,
-        id: realEvent.id,
-        link: realEvent.link,
-        name: realEvent.name,
-        order: realEvent.order,
-        userId: realEvent.userId,
-        visible: realEvent.visible,
-        extIsCollecting: false
-      })
+      let obj: Record<string, number | string | null | undefined | boolean> = {
+        'desc': realEvent.desc,
+        'icon': realEvent.icon,
+        'id': realEvent.id,
+        'link': realEvent.link,
+        'name': realEvent.name,
+        'order': realEvent.order,
+        'userId': realEvent.userId,
+        'visible': realEvent.visible,
+        'extIsCollecting': false
+      }
+      this.dataSource.addData(obj)
       if (this.pageState !== PageState.SUCCESS) {
         this.pageState = PageState.SUCCESS
       }
@@ -123,8 +125,8 @@ export struct CollectedUrlListComponent {
         })
       },
 
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
@@ -138,14 +140,14 @@ export struct CollectedUrlListComponent {
             item: item,
             onDelete: (index: number, _item: ICollectedUrl) => {
               this.deleteIndex = index
-              this.comfrimDialogController.open()
+              this.comfrimDialogController?.open()
             },
             onItemClick: (link: string) => {
               RouterDelegate.toWebPage(link)
             }
           })
         }
-      }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+      }, (item:ICollectedUrl, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
     .width('100%')
     .height('100%')
@@ -156,7 +158,7 @@ export struct CollectedUrlListComponent {
     if (event.isSuccess) {
       let targetIndex = -1
       for (let i = 0; i < this.dataSource.getAllData().length; i++) {
-        const item: ICollectedUrl = this.dataSource.getData(i)
+        const item: ICollectedUrl = this.dataSource.getData(i) as ICollectedUrl
         if (item.id === event.id) {
           targetIndex = i
           break
@@ -171,20 +173,20 @@ export struct CollectedUrlListComponent {
       }
     } else {
       for (let i = 0; i < this.dataSource.getAllData().length; i++) {
-        const item: ICollectedUrl = this.dataSource.getData(i)
+        const item: ICollectedUrl = this.dataSource.getData(i) as ICollectedUrl
         if (item.id === event.id) {
           item.extIsCollecting = false
           this.dataSource.notifyDataAdd(i)
           break
         }
       }
-      extUIShowToast(event.errMsg)
+      extUIShowToast(event?.errMsg  ?? "")
     }
   }
 
   private async loadDataAsync(
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void
+    _reject?: (reason?: CommonType) => void
   ) {
     try {
       const result = await collectedListViewModel.loadUrlListAsync()

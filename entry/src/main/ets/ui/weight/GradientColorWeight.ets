@@ -1,11 +1,16 @@
+import { CommonType } from "../../ext/TypeExt"
+
 /**
  * 颜色渐变控件
  */
 @Component
 export struct GradientColorWeight {
-  @State bgColors: Array<any> = [['#4a148c', 0.1], ['#2a36b1', 1.0]]
+  @State bgColors: Array<[
+    ResourceColor,
+    number
+  ]> = [['#4a148c', 0.1], ['#2a36b1', 1.0]]
   private progress = 0.000
-  private intervalId: number = null
+  private intervalId: number | null = null
 
   aboutToAppear() {
     //获取匀速插值
@@ -47,7 +52,13 @@ export struct GradientColorWeight {
 
 
 export class ColorDelegate {
-  constructor(public r: number, public g: number, public b: number) {
+  r: number;
+  g: number;
+  b: number;
+  constructor( r: number,  g: number,  b: number) {
+    this.r = r
+    this.g = g
+    this.b = b
   }
 
   static fromHexString(hexString: string): ColorDelegate {

@@ -7,8 +7,7 @@ import { IBanner } from '../../net/wanAPI/response/IBanner'
 export struct BannerItemLayout {
   @State private banners: Array<IBanner> = []
   private swiperController: SwiperController = new SwiperController()
-  onItemClick: (item: IBanner) => void
-
+  onItemClick: (item: IBanner) => void = ()=>{}
   build() {
     Swiper(this.swiperController) {
       ForEach(this.banners, (value: IBanner) => {

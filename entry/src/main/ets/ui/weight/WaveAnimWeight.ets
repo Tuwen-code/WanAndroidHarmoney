@@ -13,7 +13,7 @@ export struct WaveAnimWeight {
   private waveHeightPercent: number = 0.8
   private waveColor: string | CanvasGradient | CanvasPattern = "#55ffffff"
   private waveOffset: number = 0.0
-  private intervalId: number = null
+  private intervalId: number | null = null
 
   /**
    * 波浪控件

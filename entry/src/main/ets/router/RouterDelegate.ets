@@ -2,6 +2,7 @@ import router from '@ohos.router'
 import { extUIShowToast } from '../ext/UIExt'
 import globalVM_User from '../global/viewmodel/GlobalUserViewModel'
 import { IArticle } from '../net/wanAPI/response/IArticle'
+import { BusinessError } from '@kit.BasicServicesKit'
 
 
 export class PagesConstant {
@@ -21,12 +22,12 @@ export class PagesConstant {
 
 export class RouterDelegate {
   public static toWebPage(link: string) {
-
+    let emitArg: Record<string, string> = {
+      'link': link
+    }
     RouterDelegate.push(
       PagesConstant.WEB_PAGE,
-      {
-        'link': link,
-      }
+      emitArg
     )
   }
 
@@ -41,22 +42,25 @@ export class RouterDelegate {
   }
 
   public static toShareArticlePage(id: number | null = null, title: string | null = null, link: string | null = null) {
+    let emitArg: Record<string, number | string | null> = {
+      'id': id,
+      'title': title,
+      'link': link,
+    }
     RouterDelegate.pushWithLogin(
       PagesConstant.SHARE_ARTICLE_PAGE,
-      {
-        'id': id,
-        'title': title,
-        'link': link,
-      }
+      emitArg
     )
   }
 
   public static toShareListPage() {
+    let emitArg: Record<string, boolean> = {
+      'refresh': false
+    }
     RouterDelegate.pushWithLogin(
       PagesConstant.SHARE_LIST_PAGE,
-      {
-        refresh: false
-      })
+      emitArg
+    )
   }
 
   public static toCollectPage() {
@@ -90,7 +94,7 @@ export class RouterDelegate {
   }
 
 
-  private static pushWithLogin(url: string, params: object = null, showTips: boolean = true,) {
+  private static pushWithLogin(url: string, params ?: object, showTips: boolean = true,) {
     if (!globalVM_User.hasLogged()) {
       RouterDelegate.toLoginPage(showTips)
     } else {
@@ -99,7 +103,7 @@ export class RouterDelegate {
   }
 
 
-  public static replace(url: string, params: object = null, sucess: () => void = null, fail: (error) => void = null) {
+  public static replace(url: string, params?: object, sucess?: () => void, fail?: (error : BusinessError) => void) {
     router.replaceUrl(
       { url: url, params: params },
       router.RouterMode.Standard)
@@ -110,8 +114,8 @@ export class RouterDelegate {
   public static push(
     url: string,
     params: object | null = null,
-    success: () => void = null,
-    fail: (error) => void = null) {
+    success ?: () => void,
+    fail ?: (error : Error) => void) {
     router.pushUrl(
       { url: url, params: params },
       router.RouterMode.Standard
@@ -120,8 +124,8 @@ export class RouterDelegate {
   }
 
 
-  public static back(url: string = null, params: object = null) {
-    router.back({ url: url, params: params })
+  public static back(url ?: string , params?: object) {
+    router.back({url : url ??"",params : params})
   }
 
   public static getParams(): object | null {

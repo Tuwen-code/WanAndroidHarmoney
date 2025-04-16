@@ -7,9 +7,9 @@ import { Wanthemes } from '../../theme/WanThemes'
 @CustomDialog
 export struct ComfrimDialog {
   controller?: CustomDialogController
-  message: string
-  onComfrim: () => void
-  onCancel: () => void
+  message: string = ""
+  onComfrim: () => void  = () =>{}
+  onCancel: () => void = ()=>{}
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
 
   build() {

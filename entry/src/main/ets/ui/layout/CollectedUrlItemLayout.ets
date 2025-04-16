@@ -8,22 +8,22 @@ import { Wanthemes } from '../../theme/WanThemes'
  */
 @Component
 export struct CollectedUrlItemLayout {
-  index: number
-  item: ICollectedUrl
-  onDelete: (index: number, collectedUrl: ICollectedUrl) => void
+  index: number = 0
+  item: ICollectedUrl | null = null
+  onDelete: (index: number, collectedUrl: ICollectedUrl) => void = ()=>{}
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
-  onItemClick: (link: string) => void
+  onItemClick: (link: string) => void = ()=>{}
 
   build() {
     Flex({ direction: FlexDirection.Row }) {
       Column() {
-        Text(this.item.name)
+        Text(this.item?.name)
           .fontColor(this.theme.TEXT_COLOR)
           .fontSize(18)
           .maxLines(2)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Blank()
-        Text(this.item.link).fontSize(12).fontColor(Color.Green)
+        Text(this.item?.link).fontSize(12).fontColor(Color.Green)
       }
       .height('100%')
       .layoutWeight(1)
@@ -31,7 +31,7 @@ export struct CollectedUrlItemLayout {
       .alignItems(HorizontalAlign.Start)
 
       Column() {
-        if (this.item.extIsCollecting) {
+        if (this.item?.extIsCollecting) {
           LoadingProgress()
             .color(this.theme.PROGRESS_COLOR)
             .width(30)
@@ -50,7 +50,9 @@ export struct CollectedUrlItemLayout {
               left: 8,
             })
             .onClick(() => {
-              this.onDelete(this.index, this.item)
+              if(this.item != null){
+                this.onDelete(this.index, this.item)
+              }
             })
         }
       }
@@ -68,7 +70,9 @@ export struct CollectedUrlItemLayout {
     .width('100%')
     .height(86)
     .onClick(() => {
-      this.onItemClick(this.item.link)
+      if(this.item != null){
+        this.onItemClick(this.item.link)
+      }
     })
   }
 }

@@ -3,6 +3,7 @@ import List from '@ohos.util.List'
 import { AxiosClientRequestInterceptor } from './interceptors/AxiosClientRequestInterceptor'
 import { AxiosClientResponseInterceptor } from './interceptors/AxiosClientResponseInterceptor'
 import { ConfigurationAxiosClient } from './configuration/ConfigurationAxiosClient'
+import { CommonType } from '../../ext/TypeExt'
 
 
 export abstract class BaseAxiosDelegate {
@@ -32,8 +33,8 @@ export abstract class BaseAxiosDelegate {
    * @param config
    * @returns
    */
-  protected getRequest<T = any>(path: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T, any>> {
-    return this.instance.get<T>(path, config)
+  protected getRequest<T = CommonType>(path: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T, CommonType>> {
+    return this.instance.get<T,AxiosResponse<T>,null>(path, config)
   }
 
   /**
@@ -44,7 +45,7 @@ export abstract class BaseAxiosDelegate {
    * @param config
    * @returns
    */
-  protected postRequest<T = any>(path: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T, any>> {
+  protected postRequest<T = CommonType>(path: string, data?: CommonType, config?: AxiosRequestConfig): Promise<AxiosResponse<T, CommonType>> {
     return this.instance.post<T>(path, data, config)
   }
 

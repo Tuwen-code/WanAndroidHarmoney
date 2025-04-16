@@ -9,7 +9,7 @@ import Animator, { AnimatorResult } from '@ohos.animator'
 @Entry
 @Component
 struct SplashPage {
-  private alphaAnimator: AnimatorResult = null
+  private alphaAnimator: AnimatorResult | null = null
   @State logoAlpha: number = 0
 
   private animationOn() {

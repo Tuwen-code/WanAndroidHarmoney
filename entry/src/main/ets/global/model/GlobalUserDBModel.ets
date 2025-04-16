@@ -36,13 +36,13 @@ export class GlobalUserDBModel {
    * 获取本地登录用户数据
    */
   async fetchLocalLoginInfo(): Promise<[number, string, string, string, string, number] | null> {
-    let resultSet: relationalStore.ResultSet
+    let resultSet: relationalStore.ResultSet | null = null
     let predicates = new relationalStore.RdbPredicates(this.TABLE_USER)
     predicates.equalTo("login_state", 1) //查找登录中的账号
 
     try {
 
-      let resultSet = await this.store.query(predicates, ["id", "login_info", "user_info", "cookie", "password", "login_state"])
+       resultSet = await this.store.query(predicates, ["id", "login_info", "user_info", "cookie", "password", "login_state"])
 
       for (let rowIndex = 0; rowIndex < resultSet.rowCount; rowIndex++) {
         let isSuccess = resultSet.goToRow(rowIndex)
@@ -66,7 +66,7 @@ export class GlobalUserDBModel {
       })
     } catch (err) {
       if (resultSet !== null) {
-        resultSet.close()
+        resultSet?.close()
       }
       return new Promise((_resolve, reject) => {
         reject(err)
@@ -119,7 +119,7 @@ export class GlobalUserDBModel {
     //先找到上一个登录的账号 如果有的话
     let predicates = new relationalStore.RdbPredicates(this.TABLE_USER)
     predicates.equalTo("login_state", 1)
-    let queryResultSet: relationalStore.ResultSet
+    let queryResultSet: relationalStore.ResultSet | null = null
     //处理账号状态
     try {
       queryResultSet = await this.store.query(predicates, ["id"])

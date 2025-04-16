@@ -12,6 +12,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import collectedListViewModel from '../../../viewmodel/CollectedListViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 
 @Component
@@ -24,7 +25,7 @@ export struct CollectedArticleListComponent {
   private uncollectIndex: number = -1
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //弹窗
-  private comfrimDialogController: CustomDialogController = new CustomDialogController({
+  private comfrimDialogController: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
       message: '是否取消收藏 \n \n《' + (this.dataSource.getData(this.uncollectIndex) as IArticle).title + '》',
       onComfrim: () => {
@@ -32,10 +33,10 @@ export struct CollectedArticleListComponent {
         article.extIsCollecting = true
         this.dataSource.notifyDataChange(this.uncollectIndex)
         globalVM_Collect.uncolect(article.originId)
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       },
       onCancel: () => {
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -104,26 +105,26 @@ export struct CollectedArticleListComponent {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
   @Builder
   private listLayout() {
     List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
-      LazyForEach(this.dataSource, (item: any, index: number) => {
+      LazyForEach(this.dataSource, (item: CommonType, index: number) => {
         ListItem() {
           ArticleItemLayout({
-            article: item,
+            article: item as  IArticle ,
             theme: this.theme,
             onCollect: (_isCollect: boolean, _article: IArticle) => {
               this.uncollectIndex = index
-              this.comfrimDialogController.open()
+              this.comfrimDialogController?.open()
             }
           })
         }
-      }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+      }, (item : CommonType, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
     .width('100%')
     .height('100%')
@@ -134,7 +135,7 @@ export struct CollectedArticleListComponent {
     if (event.isSuccess) {
       let targetIndex = -1
       for (let i = 0; i < this.dataSource.getAllData().length; i++) {
-        const item: IArticle = this.dataSource.getData(i)
+        const item: IArticle = this.dataSource.getData(i) as IArticle
         if (item.originId === event.id) {
           targetIndex = i
           break
@@ -148,20 +149,20 @@ export struct CollectedArticleListComponent {
       }
     } else {
       for (let i = 0; i < this.dataSource.getAllData().length; i++) {
-        if (this.dataSource.getData(i).originId === event.id) {
-          this.dataSource.getData(i).extIsCollecting = false
+        if ((this.dataSource.getData(i) as IArticle).originId === event.id) {
+          (this.dataSource.getData(i) as IArticle).extIsCollecting = false
           this.dataSource.notifyDataAdd(i)
           break
         }
       }
-      extUIShowToast(event.errMsg)
+      extUIShowToast(event?.errMsg??"")
     }
   }
 
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void
+    _reject?: (reason?: CommonType) => void
   ) {
     try {
       const result = await collectedListViewModel.loadArticleListAsync(isRefresh)

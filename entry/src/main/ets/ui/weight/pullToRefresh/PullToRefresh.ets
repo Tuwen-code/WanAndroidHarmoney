@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CommonType } from '../../../ext/TypeExt';
 import { PullToRefreshConfigurator } from './PullToRefreshConfigurator'
 import { PullToRefreshController } from './PullToRefreshController';
 
@@ -27,7 +28,7 @@ const IS_LOADING = 5;
 
 @Component
 export struct PullToRefresh {
-  @Link data: any;
+  @Link data: CommonType;
   @BuilderParam customList: () => void;
   refreshConfigurator?: PullToRefreshConfigurator;
   @State @Watch('onRefreshLoadMoreUpdate') controller: PullToRefreshController = new PullToRefreshController()
@@ -71,7 +72,7 @@ export struct PullToRefresh {
   private listOffsetNew?: number = 0;
   private canvasSetting?: RenderingContextSettings = new RenderingContextSettings(true);
   private canvasRefresh?: CanvasRenderingContext2D = new CanvasRenderingContext2D(this.canvasSetting);
-  private value?: number = 0;
+  private value: number = 0;
   private timer?: number;
   private refreshRingOx?: number = 0;
   private refreshRingOy?: number = 0;
@@ -91,10 +92,10 @@ export struct PullToRefresh {
   }
 
   private initCanvas(): void {
-    if (this.refreshRingOx == 0) {
-      this.canvasRefresh.strokeStyle = this.refreshConfigurator.getRefreshColor();
-      this.canvasRefresh.fillStyle = this.refreshConfigurator.getRefreshColor();
-      this.canvasRefresh.lineWidth = this.refreshConfigurator.getRefreshHeight() / 60 + 1;
+    if (this.refreshRingOx == 0 && this.refreshConfigurator != undefined && this.canvasRefresh != undefined) {
+      this.canvasRefresh.strokeStyle = this.refreshConfigurator?.getRefreshColor();
+      this.canvasRefresh.fillStyle = this.refreshConfigurator?.getRefreshColor();
+      this.canvasRefresh.lineWidth = this.refreshConfigurator?.getRefreshHeight() / 60 + 1;
       this.refreshRingOx = this.refreshConfigurator.getRefreshWidth() / 2; // 圆心x坐标
       this.refreshRingOy = this.refreshConfigurator.getRefreshHeight() / 2; // 圆心y坐标
       this.refreshRingRadius = this.refreshConfigurator.getRefreshHeight() / 4; // 半径
@@ -113,22 +114,22 @@ export struct PullToRefresh {
       }
       .width('100%')
       .height(this.trYTop)
-      .backgroundColor(this.refreshConfigurator.getRefreshBackgroundColor())
+      .backgroundColor(this.refreshConfigurator?.getRefreshBackgroundColor())
 
       // 主体列表部分
       Column() {
         this.customList()
       }
       .width('100%')
-      .height(this.mHeightNumber - this.trYTop + this.trYBottom)
+      .height(this.mHeightNumber ?? 0 - (this.trYTop ?? 0) + (this.trYBottom ?? 0))
 
       // 上拉加载动画部分
       Stack() {
         this.footerUI()
       }
       .width('100%')
-      .height(-this.trYBottom)
-      .backgroundColor(this.refreshConfigurator.getLoadBackgroundColor())
+      .height(-(this.trYBottom ?? 0))
+      .backgroundColor(this.refreshConfigurator?.getLoadBackgroundColor())
     }
     .width(this.mWidth === undefined ? '100%' : this.mWidth)
     .height(this.mHeight === undefined ? '100%' : this.mHeight)
@@ -162,8 +163,8 @@ export struct PullToRefresh {
       Stack() {
         Text(this.refreshText)
           .textAlign(TextAlign.Center)
-          .fontColor(this.refreshConfigurator.getRefreshTextColor())
-          .fontSize(this.refreshConfigurator.getRefreshTextSize())
+          .fontColor(this.refreshConfigurator?.getRefreshTextColor())
+          .fontSize(this.refreshConfigurator?.getRefreshTextSize())
         Stack() {
           Canvas(this.canvasRefresh)
             .width('100%')
@@ -173,13 +174,13 @@ export struct PullToRefresh {
             })
             .visibility(this.state == IS_PULL_DOWN_2 ? Visibility.Visible : Visibility.Hidden)
           LoadingProgress()
-            .width(this.refreshConfigurator.getRefreshHeight())
-            .height(this.refreshConfigurator.getRefreshHeight())
-            .color(this.refreshConfigurator.getRefreshColor())
+            .width(this.refreshConfigurator?.getRefreshHeight())
+            .height(this.refreshConfigurator?.getRefreshHeight())
+            .color(this.refreshConfigurator?.getRefreshColor())
             .visibility(this.state == IS_REFRESHING ? Visibility.Visible : Visibility.Hidden)
         }
-        .width(this.refreshConfigurator.getRefreshWidth())
-        .height(this.refreshConfigurator.getRefreshHeight())
+        .width(this.refreshConfigurator?.getRefreshWidth())
+        .height(this.refreshConfigurator?.getRefreshHeight())
       }
       .width('100%')
       .height('100%')
@@ -216,15 +217,15 @@ export struct PullToRefresh {
               angle: this.angle2
             })
         }
-        .width(this.refreshConfigurator.getLoadImgHeight())
-        .height(this.refreshConfigurator.getLoadImgHeight())
+        .width(this.refreshConfigurator?.getLoadImgHeight())
+        .height(this.refreshConfigurator?.getLoadImgHeight())
 
         Text(this.loadText)
           .height('100%')
           .textAlign(TextAlign.Center)
           .margin({ left: 8 })
-          .fontColor(this.refreshConfigurator.getLoadTextColor())
-          .fontSize(this.refreshConfigurator.getLoadTextSize())
+          .fontColor(this.refreshConfigurator?.getLoadTextColor())
+          .fontSize(this.refreshConfigurator?.getLoadTextSize())
       }
       .height('100%')
     }
@@ -240,16 +241,17 @@ export struct PullToRefresh {
       this.touchYNew = offsetY;
 
       // 当前手势是否下拉
-      let distanceY = this.touchYNew - this.touchYOld;
+      let distanceY = this.touchYNew - (this.touchYOld ?? 0);
       let isPullAction = distanceY > 0;
 
       let currentYOffset = this.controller.getScroller().currentOffset().yOffset
       //解决先上拉加载，再下拉刷新后无法拉动下拉刷新控件的问题 目前这么判断还是有问题，因为滚动列表时，回顶部yOffset会不为0，需要多置顶一次才为0
-      if ((this.state == IS_FREE && (currentYOffset === 0 || this.lastedRefreshOffset === currentYOffset) && isPullAction) || // 处于自由状态且列表处于顶部位置 并且 当前手势是下拉手势
+      if ((this.state == IS_FREE && (currentYOffset === 0 || this.lastedRefreshOffset === currentYOffset) &&
+        isPullAction) || // 处于自由状态且列表处于顶部位置 并且 当前手势是下拉手势
         this.state == IS_PULL_DOWN_1 || this.state == IS_PULL_DOWN_2) { // 处于下拉状态中
-        if (this.refreshConfigurator.getHasRefresh()) {
+        if (this.refreshConfigurator?.getHasRefresh()) {
           // 获取最新位移距离
-          var trY = this.touchYNew - this.touchYOld;
+          let trY = this.touchYNew - (this.touchYOld ?? 0);
           // 计算当前需要位移的总距离
           this.trYTop = this.getTranslateYOfRefresh(trY);
           if (this.trYTop < this.refreshConfigurator.getRefreshHeight()) {
@@ -259,20 +261,22 @@ export struct PullToRefresh {
           }
           // 如果没有自定义刷新动画，就执行内置动画下拉时的逻辑
           if (!this.customRefresh) {
-            this.drawRefreshView(this.trYTop / this.refreshConfigurator.getMaxTranslate());
+            this.drawRefreshView(this.trYTop / (this.refreshConfigurator?.getMaxTranslate() ?? 0));
           }
           // 如果有下拉中动画回调，就执行下拉中动画回调
           if (this.onAnimPullDown) {
-            this.onAnimPullDown(this.trYTop / this.refreshConfigurator.getMaxTranslate(), this.mWidthNumber, this.trYTop);
+            this.onAnimPullDown(this.trYTop / (this.refreshConfigurator.getMaxTranslate() ?? 0), this.mWidthNumber,
+              this.trYTop);
           }
         }
-      } else if (this.refreshConfigurator.getHasLoadMore()) {
+      } else if (this.refreshConfigurator?.getHasLoadMore()) {
         this.listOffsetNew = this.controller.getScroller().currentOffset().yOffset;
         // 列表处于底部位置且上滑时，2.已上滑时
-        if ((this.state == IS_FREE && this.listOffsetOld == this.listOffsetNew && this.listOffsetOld != 0 && this.touchYNew < this.touchYOld) ||
+        if ((this.state == IS_FREE && this.listOffsetOld == this.listOffsetNew && this.listOffsetOld != 0 &&
+          this.touchYNew < (this.touchYOld ?? 0)) ||
           this.state == IS_PULL_UP_1 || this.state == IS_PULL_UP_2) {
           // 获取最新的位移距离
-          var trY = this.touchYNew - this.touchYOld;
+          let trY = this.touchYNew - (this.touchYOld ?? 0);
           // 计算当前需要位移的总距离
           this.trYBottom = this.getTranslateYOfLoadMore(trY);
 
@@ -283,11 +287,12 @@ export struct PullToRefresh {
           }
           // 如果没有自定义加载更多动画，就执行内置动画上拉时的逻辑
           if (!this.customLoad) {
-            this.drawLoadView(true, -this.trYBottom / this.refreshConfigurator.getMaxTranslate());
+            this.drawLoadView(true, -this.trYBottom / (this.refreshConfigurator.getMaxTranslate() ?? 0));
           }
           // 如果有上拉中动画回调，就执行上拉中动画回调
           if (this.onAnimPullUp) {
-            this.onAnimPullUp(-this.trYBottom / this.refreshConfigurator.getMaxTranslate(), this.mWidthNumber, -this.trYBottom);
+            this.onAnimPullUp(-this.trYBottom / (this.refreshConfigurator.getMaxTranslate() ?? 0), this.mWidthNumber,
+              -this.trYBottom);
           }
         }
         this.listOffsetOld = this.listOffsetNew;
@@ -298,7 +303,7 @@ export struct PullToRefresh {
   }
 
   private onActionEnd(): void {
-    if (this.refreshConfigurator.getListIsPlacement()) {
+    if (this.refreshConfigurator?.getListIsPlacement()) {
       if (this.state == IS_PULL_DOWN_1 || this.state == IS_PULL_DOWN_2) {
         // 让列表归位到顶部
         this.controller.getScroller().scrollEdge(Edge.Top);
@@ -307,20 +312,20 @@ export struct PullToRefresh {
         this.controller.getScroller().scrollEdge(Edge.Bottom);
       }
     }
-    if (this.trYTop > 0) { // 下拉结束
+    if (this.trYTop ?? 0 > 0) { // 下拉结束
       if (this.state == IS_FREE || this.state == IS_PULL_DOWN_1 || this.state == IS_PULL_DOWN_2) {
-        if (this.trYTop / this.refreshConfigurator.getMaxTranslate() < 0.75) {
+        if (this.trYTop ?? 0 / (this.refreshConfigurator?.getMaxTranslate() ?? 0) < 0.75) {
           this.closeRefresh();
         } else {
           this.state = IS_REFRESHING;
           this.controller.updateRefreshState(true);
-          this.trYTop = this.refreshConfigurator.getMaxTranslate() * 0.75;
+          this.trYTop = (this.refreshConfigurator?.getMaxTranslate() ?? 0) * 0.75;
           clearInterval(this.timer);
           this.timer = setInterval(() => {
-            if (this.value >= 1) {
+            if ((this.value ?? 0) >= 1) {
               this.value -= 1;
             } else {
-              this.value += 10 / this.refreshConfigurator.getRefreshAnimDuration();
+              this.value += 10 / (this.refreshConfigurator?.getRefreshAnimDuration() ?? 0);
             }
             // 保留3位小数
             this.value = Math.round(this.value * 1000) / 1000;
@@ -330,7 +335,7 @@ export struct PullToRefresh {
               this.onAnimRefreshing(this.value, this.mWidthNumber, this.trYTop);
             }
           }, 10);
-          this.onRefresh().then((refreshText) => {
+          this.onRefresh?.().then((refreshText) => {
             if (refreshText.length == 0) {
               this.closeRefresh();
             } else {
@@ -346,14 +351,14 @@ export struct PullToRefresh {
           });
         }
       }
-    } else if (this.trYBottom < 0) { // 上拉结束
+    } else if ((this.trYBottom ?? 0) < 0) { // 上拉结束
       if (this.state == IS_FREE || this.state == IS_PULL_UP_1 || this.state == IS_PULL_UP_2) {
-        if (-this.trYBottom / this.refreshConfigurator.getMaxTranslate() < 0.75) {
+        if (-(this.trYBottom ?? 0) / (this.refreshConfigurator?.getMaxTranslate() ?? 0) < 0.75) {
           this.closeLoad();
         } else {
           this.state = IS_LOADING;
           this.controller.updateLoadMoreState(true);
-          this.trYBottom = -this.refreshConfigurator.getMaxTranslate() * 0.75;
+          this.trYBottom = -(this.refreshConfigurator?.getMaxTranslate() ?? 0) * 0.75;
           clearInterval(this.timer);
           this.timer = setInterval(() => {
             if (this.value >= 1) {
@@ -369,13 +374,12 @@ export struct PullToRefresh {
             }
             // 如果有加载中动画回调，就执行加载中动画回调
             if (this.onAnimLoading) {
-              this.onAnimLoading(this.value, this.mWidthNumber, -this.trYBottom);
+              this.onAnimLoading(this.value, this.mWidthNumber, -(this.trYBottom ?? 0));
             }
           }, 10);
-          this.onLoadMore().then((_loadText) => {
+          this.onLoadMore?.().then((_loadText) => {
             this.closeLoad();
           });
-
         }
       }
     } else {
@@ -384,107 +388,108 @@ export struct PullToRefresh {
   }
 
   private getTranslateYOfRefresh(newTranslateY: number): number {
-    var maxTranslateY = this.refreshConfigurator.getMaxTranslate();
-    var sensitivity = this.refreshConfigurator.getSensitivity();
+    let maxTranslateY = this.refreshConfigurator?.getMaxTranslate();
+    let sensitivity = this.refreshConfigurator?.getSensitivity();
     // 阻尼值计算
-    if (this.trYTop / maxTranslateY < 0.2) {
-      newTranslateY = newTranslateY * 1 * sensitivity;
-    } else if (this.trYTop / maxTranslateY < 0.4) {
-      newTranslateY = newTranslateY * 0.8 * sensitivity;
-    } else if (this.trYTop / maxTranslateY < 0.6) {
-      newTranslateY = newTranslateY * 0.6 * sensitivity;
-    } else if (this.trYTop / maxTranslateY < 0.8) {
-      newTranslateY = newTranslateY * 0.4 * sensitivity;
+    if (this.trYTop ?? 0 / (maxTranslateY ?? 0) < 0.2) {
+      newTranslateY = newTranslateY * 1 * (sensitivity ?? 0);
+    } else if (this.trYTop ?? 0 / (maxTranslateY ?? 0) < 0.4) {
+      newTranslateY = newTranslateY * 0.8 * (sensitivity ?? 0);
+    } else if (this.trYTop ?? 0 / (maxTranslateY ?? 0) < 0.6) {
+      newTranslateY = newTranslateY * 0.6 * (sensitivity ?? 0);
+    } else if (this.trYTop ?? 0 / (maxTranslateY ?? 0) < 0.8) {
+      newTranslateY = newTranslateY * 0.4 * (sensitivity ?? 0);
     } else {
-      newTranslateY = newTranslateY * 0.2 * sensitivity;
+      newTranslateY = newTranslateY * 0.2 * (sensitivity ?? 0);
     }
     // 下拉值计算
-    if (this.trYTop + newTranslateY > maxTranslateY) {
-      return maxTranslateY;
-    } else if (this.trYTop + newTranslateY < 0) {
+    if (this.trYTop ?? 0 + newTranslateY > (maxTranslateY ?? 0)) {
+      return (maxTranslateY ?? 0);
+    } else if (this.trYTop ?? 0 + newTranslateY < 0) {
       return 0;
     } else {
-      return this.trYTop + newTranslateY;
+      return this.trYTop ?? 0 + newTranslateY;
     }
   }
 
   private getTranslateYOfLoadMore(newTranslateY: number): number {
-    var maxTranslateY = this.refreshConfigurator.getMaxTranslate();
-    var sensitivity = this.refreshConfigurator.getSensitivity();
+    let maxTranslateY = this.refreshConfigurator?.getMaxTranslate();
+    let sensitivity = this.refreshConfigurator?.getSensitivity();
     // 阻尼值计算
-    if (this.trYBottom / maxTranslateY > -0.2) {
-      newTranslateY = newTranslateY * 1 * sensitivity;
-    } else if (this.trYBottom / maxTranslateY > -0.4) {
-      newTranslateY = newTranslateY * 0.8 * sensitivity;
-    } else if (this.trYBottom / maxTranslateY > -0.6) {
-      newTranslateY = newTranslateY * 0.6 * sensitivity;
-    } else if (this.trYBottom / maxTranslateY > -0.8) {
-      newTranslateY = newTranslateY * 0.4 * sensitivity;
+    if (this.trYBottom ?? 0 / (maxTranslateY ?? 0) > -0.2) {
+      newTranslateY = newTranslateY * 1 * (sensitivity ?? 0);
+    } else if (this.trYBottom ?? 0 / (maxTranslateY ?? 0) > -0.4) {
+      newTranslateY = newTranslateY * 0.8 * (sensitivity ?? 0);
+    } else if (this.trYBottom ?? 0 / (maxTranslateY ?? 0) > -0.6) {
+      newTranslateY = newTranslateY * 0.6 * (sensitivity ?? 0);
+    } else if (this.trYBottom ?? 0 / (maxTranslateY ?? 0) > -0.8) {
+      newTranslateY = newTranslateY * 0.4 * (sensitivity ?? 0);
     } else {
-      newTranslateY = newTranslateY * 0.2 * sensitivity;
+      newTranslateY = newTranslateY * 0.2 * (sensitivity ?? 0);
     }
     // 下拉值计算
-    if (this.trYBottom + newTranslateY < -maxTranslateY) {
-      return -maxTranslateY;
-    } else if (this.trYBottom + newTranslateY > 0) {
+    if (this.trYBottom ?? 0 + newTranslateY < -(maxTranslateY ?? 0)) {
+      return -(maxTranslateY ?? 0);
+    } else if (this.trYBottom ?? 0 + newTranslateY > 0) {
       return 0;
     } else {
-      return this.trYBottom + newTranslateY;
+      return this.trYBottom ?? 0 + newTranslateY;
     }
   }
 
   private drawRefreshView(value: number): void {
-    if (this.trYTop >= this.refreshConfigurator.getRefreshHeight()) {
-      this.canvasRefresh.clearRect(0, 0, this.refreshConfigurator.getRefreshWidth(), this.refreshConfigurator.getRefreshHeight());
+    if (this.trYTop ?? 0 >= (this.refreshConfigurator?.getRefreshHeight() ?? 0)) {
+      this.canvasRefresh?.clearRect(0, 0, this.refreshConfigurator?.getRefreshWidth(),
+        this.refreshConfigurator?.getRefreshHeight());
       // 绘制圆环
-      this.canvasRefresh.beginPath();
-      this.canvasRefresh.arc(this.refreshRingOx, this.refreshRingOy, this.refreshRingRadius, 0, Math.PI * 2);
-      this.canvasRefresh.stroke();
+      this.canvasRefresh?.beginPath();
+      this.canvasRefresh?.arc(this.refreshRingOx, this.refreshRingOy, this.refreshRingRadius, 0, Math.PI * 2);
+      this.canvasRefresh?.stroke();
       // 绘制卫星
       value = value > 0.75 ? 0.75 : value;
-      this.canvasRefresh.beginPath();
-      this.canvasRefresh.arc(
-        value * (this.refreshPoint2x - this.refreshPoint1x) + this.refreshPoint1x,
-        value * (this.refreshPoint2y - this.refreshPoint1y) + this.refreshPoint1y,
-        this.refreshConfigurator.getRefreshHeight() / 20 + 1, 0, Math.PI * 2);
-      this.canvasRefresh.fill();
+      this.canvasRefresh?.beginPath();
+      this.canvasRefresh?.arc(
+        value * (this.refreshPoint2x ?? 0 - (this.refreshPoint1x ?? 0)) + (this.refreshPoint1x ?? 0),
+        value * (this.refreshPoint2y ?? 0 - (this.refreshPoint1y ?? 0)) + (this.refreshPoint1y ?? 0),
+        this.refreshConfigurator?.getRefreshHeight() ?? 0 / 20 + 1, 0, Math.PI * 2);
+      this.canvasRefresh?.fill();
     }
   }
 
   private drawLoadView(isPullUp: boolean, value: number): void {
     if (isPullUp) {
-      if (this.trYBottom <= -this.refreshConfigurator.getLoadImgHeight()) {
+      if (this.trYBottom ?? 0 <= -(this.refreshConfigurator?.getLoadImgHeight() ?? 0)) {
         if (value < 0.75) {
           this.angle1 = 0;
-          this.loadText = this.refreshConfigurator.getLoadTextPullUp1();
+          this.loadText = this.refreshConfigurator?.getLoadTextPullUp1();
         } else {
           this.angle1 = 180;
-          this.loadText = this.refreshConfigurator.getLoadTextPullUp2();
+          this.loadText = this.refreshConfigurator?.getLoadTextPullUp2();
         }
       } else {
         this.loadText = '';
       }
     } else {
       this.angle2 = value * 360;
-      this.loadText = this.refreshConfigurator.getLoadTextLoading();
+      this.loadText = this.refreshConfigurator?.getLoadTextLoading();
     }
   }
 
   public closeRefresh(): void {
     clearInterval(this.timer);
-    animateTo({ duration: this.refreshConfigurator.getAnimDuration() }, () => {
+    animateTo({ duration: this.refreshConfigurator?.getAnimDuration() }, () => {
       this.trYTop = 0;
     });
     setTimeout(() => {
       this.state = IS_FREE;
       this.refreshText = '';
       this.controller.updateRefreshState(false);
-    }, this.refreshConfigurator.getAnimDuration());
+    }, this.refreshConfigurator?.getAnimDuration());
   }
 
   public closeLoad(): void {
     clearInterval(this.timer);
-    animateTo({ duration: this.refreshConfigurator.getAnimDuration() }, () => {
+    animateTo({ duration: this.refreshConfigurator?.getAnimDuration() }, () => {
       this.trYBottom = 0;
     });
     this.state = IS_FREE;

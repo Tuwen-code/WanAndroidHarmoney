@@ -1,7 +1,7 @@
 import { extUIHideKeybroad, extUIShowKeybroad, extUIShowToast } from '../../../ext/UIExt'
 import globalVM_Setting from '../../../global/viewmodel/GlobalSettingViewModel'
 import { PagesConstant, RouterDelegate } from '../../../router/RouterDelegate'
-import {  Wanthemes } from '../../../theme/WanThemes'
+import { Wanthemes } from '../../../theme/WanThemes'
 import { ComfrimDialog } from '../../dialog/ComfrimDialog'
 import { LogdingDialog } from '../../dialog/LoadingDialog'
 import { RuleDescribeDialog } from '../../dialog/RuleDescribeDialog'
@@ -15,10 +15,10 @@ export struct ShareArticlePage {
   @State private artionBartitle: string = '分享文章'
   @State btnTitle: string = '发 布 文 章'
   //是否是重新编辑文章
-  private isModifyArticle: boolean = (RouterDelegate.getParams()['id'] !== null)
+  private isModifyArticle: boolean = (RouterDelegate.getParams()?.['id'] !== null)
   //编辑文章传入的title和link
-  private title: string = RouterDelegate.getParams()['title']
-  private link: string = RouterDelegate.getParams()['link']
+  private title: string = RouterDelegate.getParams()?.['title']
+  private link: string = RouterDelegate.getParams()?.['link']
   //正在编辑的title和link
   @State editingTitle: string = ''
   @State editingLink: string = ''
@@ -33,13 +33,13 @@ export struct ShareArticlePage {
   @State private titleBorderColor: string = this.theme.TEXTINPUT_UNFOCUS_COLOR as string
   @State private linkBorderColor: string = this.theme.TEXTINPUT_UNFOCUS_COLOR as string
   //弹窗
-  private coinRuleDialogController: CustomDialogController = new CustomDialogController({
+  private coinRuleDialogController: CustomDialogController | null = new CustomDialogController({
     builder: RuleDescribeDialog({
       content: $r('app.string.share_article_description')
     }),
     // 点击遮障层退出时的回调
     cancel: () => {
-      this.coinRuleDialogController.close()
+      this.coinRuleDialogController?.close()
     },
     //是否允许点击遮障层退出
     autoCancel: true,
@@ -50,17 +50,17 @@ export struct ShareArticlePage {
     //弹窗容器样式是否自定义。默认值：false，弹窗容器的宽度根据栅格系统自适应，不跟随子节点；高度自适应子节点，最大为窗口高度的90%；圆角为24vp。
     customStyle: true
   })
-  private comfrimDialogController: CustomDialogController = new CustomDialogController({
+  private comfrimDialogController: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
       message: '发布文章 \n \n《' + this.editingTitle + '》 \n \n ' + this.editingLink,
       onComfrim: () => {
-        this.comfrimDialogController.close()
-        this.loadingDialogController.open()
+        this.comfrimDialogController?.close()
+        this.loadingDialogController?.open()
         extUIHideKeybroad()
         this.shareArticleAsnyc(this.editingTitle, this.editingLink)
       },
       onCancel: () => {
-        this.comfrimDialogController.close()
+        this.comfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -78,7 +78,7 @@ export struct ShareArticlePage {
   })
   @State loadingMsg: string = '发布中...'
   //loading弹窗
-  private loadingDialogController: CustomDialogController = new CustomDialogController({
+  private loadingDialogController: CustomDialogController | null = new CustomDialogController({
     builder: LogdingDialog({
       text: this.loadingMsg
     }),
@@ -125,11 +125,13 @@ export struct ShareArticlePage {
         showBackButton: true,
         rightRowElement: this.rightRowLayout.bind(this), //这里需要绑定本页面，不然rightRowLayout中的this是ActionBarWeight的this，造成undefined
         onBackPress: () => {
+          let data: Record<string, boolean> = {
+            'refresh': false
+          }
+
           RouterDelegate.back(
             PagesConstant.SHARE_LIST_PAGE,
-            {
-              refresh: false
-            }
+            data
           )
         },
       })
@@ -306,7 +308,7 @@ export struct ShareArticlePage {
             extUIShowToast("标题和链接不能为空！")
             return
           }
-          this.comfrimDialogController.open()
+          this.comfrimDialogController?.open()
         })
 
     }
@@ -332,7 +334,7 @@ export struct ShareArticlePage {
           right: 24,
         })
         .onClick(() => {
-          this.coinRuleDialogController.open()
+          this.coinRuleDialogController?.open()
         })
     }
   }
@@ -341,15 +343,16 @@ export struct ShareArticlePage {
     try {
       await shareViewModel.shareArticleAsync(title, link)
       extUIShowToast("发布成功")
+      let data : Record<string,boolean> = {
+        'refresh': true
+      }
       RouterDelegate.back(
         PagesConstant.SHARE_LIST_PAGE,
-        {
-          refresh: true
-        }
+        data
       )
     } catch (err) {
       extUIShowToast("发布失败：" + err)
     }
-    this.loadingDialogController.close()
+    this.loadingDialogController?.close()
   }
 }

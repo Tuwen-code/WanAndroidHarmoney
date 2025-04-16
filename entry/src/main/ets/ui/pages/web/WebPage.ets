@@ -25,7 +25,7 @@ enum CollectType {
 export struct WebPage {
   private readonly TAG = 'WebPage'
   private controller: WebviewController = new webview.WebviewController()
-  private link: string | null = RouterDelegate.getParams()['link']
+  private link: string | null = RouterDelegate.getParams()?.['link']
   @State private title: string = '加载中...'
   @State private loadingProgress: number = 0
   @State private showLoadingProgress: boolean = true
@@ -34,18 +34,18 @@ export struct WebPage {
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   private isFristLoad = true
   private collectedUrlMap: HashMap<number, ICollectedUrl> = new HashMap<number, ICollectedUrl>()
-  private unCollectUrl: ICollectedUrl = null
-  private collectUrlDialogController: CustomDialogController = new CustomDialogController({
+  private unCollectUrl: ICollectedUrl| null= null
+  private collectUrlDialogController: CustomDialogController | null = new CustomDialogController({
     builder: CollectUrlDialog({
       editingTitle: this.title,
-      editingLink: this.link,
+      editingLink: this.link??"",
       onComfrim: (title: string, link: string) => {
         globalVM_Collect.collectUrl(title, link)
         this.collectType = CollectType.LOADING
-        this.collectUrlDialogController.close()
+        this.collectUrlDialogController?.close()
       },
       onCancel: () => {
-        this.collectUrlDialogController.close()
+        this.collectUrlDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -61,16 +61,16 @@ export struct WebPage {
     //弹窗容器样式是否自定义。默认值：false，弹窗容器的宽度根据栅格系统自适应，不跟随子节点；高度自适应子节点，最大为窗口高度的90%；圆角为24vp。
     customStyle: false
   })
-  private unCollectUrlDialogController: CustomDialogController = new CustomDialogController({
+  private unCollectUrlDialogController: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
-      message: '是否取消收藏 \n \n《' + this.unCollectUrl.name + '》 \n \n ' + this.unCollectUrl.link,
+      message: '是否取消收藏 \n \n《' + this.unCollectUrl?.name + '》 \n \n ' + this.unCollectUrl?.link,
       onComfrim: () => {
-        globalVM_Collect.uncollectUrl(this.unCollectUrl.id)
+        globalVM_Collect.uncollectUrl(this.unCollectUrl?.id ?? 0)
         this.collectType = CollectType.LOADING
-        this.unCollectUrlDialogController.close()
+        this.unCollectUrlDialogController?.close()
       },
       onCancel: () => {
-        this.unCollectUrlDialogController.close()
+        this.unCollectUrlDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -121,7 +121,7 @@ export struct WebPage {
       } else {
         extUIShowToast("取消收藏失败")
       }
-      this.checkCollectedUrl(this.link)
+      this.checkCollectedUrl(this.link ?? "")
     })
   }
 
@@ -241,7 +241,7 @@ export struct WebPage {
   private onCollectAction(isCollect: boolean) {
     if (globalVM_User.hasLogged()) {
       if (isCollect) {
-        this.collectUrlDialogController.open()
+        this.collectUrlDialogController?.open()
       } else {
         const keys = Array.from(this.collectedUrlMap.keys())
         keys.forEach((key: number) => {
@@ -250,7 +250,7 @@ export struct WebPage {
             this.collectedUrlMap.get(key).link === this.link
           ) {
             this.unCollectUrl = this.collectedUrlMap.get(key)
-            this.unCollectUrlDialogController.open()
+            this.unCollectUrlDialogController?.open()
             return
           }
         })
@@ -288,7 +288,7 @@ export struct WebPage {
         this.collectedUrlMap.set(item.id, item)
       })
 
-      this.checkCollectedUrl(this.link)
+      this.checkCollectedUrl(this.link ?? "")
     } catch (err) {
       extUIShowToast('获取收藏URL列表失败：' + err)
     }

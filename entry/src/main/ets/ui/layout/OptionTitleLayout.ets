@@ -2,7 +2,7 @@ import { Wanthemes } from '../../theme/WanThemes'
 
 @Component
 export struct OptionTitleLayout {
-  title: string
+  title: string = ""
   @Link theme: Wanthemes.IWanTheme
 
   build() {

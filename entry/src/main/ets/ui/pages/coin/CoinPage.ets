@@ -14,6 +14,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import coinViewModel from '../../../viewmodel/CoinViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 
 /**
@@ -25,19 +26,19 @@ export struct CoinPage {
   @State private dataSource: AnyListDataSource = new AnyListDataSource()
   @State coinNum: number = 0
   @State private pageState: PageState = PageState.LOADING
-  private intervalId: number = null
+  private intervalId: number|null = null
   @State controller: PullToRefreshController = new PullToRefreshController()
   configurator: PullToRefreshConfigurator = new PullToRefreshConfigurator()
   @State title: string = '我的积分'
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //弹窗
-  private coinRuleDialogController: CustomDialogController = new CustomDialogController({
+  private coinRuleDialogController: CustomDialogController | null = new CustomDialogController({
     builder: RuleDescribeDialog({
       content: $r('app.string.coin_rule_description')
     }),
     // 点击遮障层退出时的回调
     cancel: () => {
-      this.coinRuleDialogController.close()
+      this.coinRuleDialogController?.close()
     },
     //是否允许点击遮障层退出
     autoCancel: true,
@@ -51,16 +52,19 @@ export struct CoinPage {
 
   aboutToAppear() {
     //增加积分增长效果
-    var progress: number = 0
+    let progress: number = 0
     let curve = Curves.initCurve(Curve.EaseOut)
     this.intervalId = setInterval(() => {
       let interpolate = curve.interpolate(progress)
       //向下取整
-      this.coinNum = Math.floor(interpolate * globalVM_User.getLoginInfo().coinCount)
+      if(globalVM_User.getLoginInfo() != null){
+        this.coinNum = Math.floor(interpolate * (globalVM_User.getLoginInfo()?.coinCount ?? 0))
+      }
+
       progress += 0.04
       if (progress > 1) {
         //结束
-        this.coinNum = globalVM_User.getLoginInfo().coinCount
+        this.coinNum = globalVM_User.getLoginInfo()?.coinCount ?? 0
         clearInterval(this.intervalId)
       }
     }, 38)
@@ -142,8 +146,8 @@ export struct CoinPage {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad : undefined,
+      customRefresh: undefined,
     })
   }
 
@@ -158,7 +162,7 @@ export struct CoinPage {
               theme: this.theme
             })
           }
-        }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+        }, (item : ICoinListInfo, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
       }
       .width('100%')
       .height('100%')
@@ -208,7 +212,7 @@ export struct CoinPage {
           right: 24,
         })
         .onClick(() => {
-          this.coinRuleDialogController.open()
+          this.coinRuleDialogController?.open()
         })
 
       Image($r('app.media.ic_rank'))
@@ -228,7 +232,7 @@ export struct CoinPage {
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void
+    _reject?: (reason?: CommonType) => void
   ) {
     if (isRefresh && this.dataSource.totalCount() === 0) {
       this.pageState = PageState.LOADING

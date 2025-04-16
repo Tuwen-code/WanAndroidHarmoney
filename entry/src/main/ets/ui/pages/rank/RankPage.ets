@@ -10,6 +10,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import rankViewModel from '../../../viewmodel/RankViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 @Entry
 @Component
@@ -28,7 +29,7 @@ export struct RankPage {
       let realEvent = eventData.data as UserInfoUpdateEvent
       if (!realEvent.isUpdating) {
         if (globalVM_User.getUserInfo() !== null) {
-          this.title = '积分排行（我的排名:' + globalVM_User.getUserInfo().coinInfo.rank + '）'
+          this.title = '积分排行（我的排名:' + globalVM_User.getUserInfo()?.coinInfo.rank + '）'
         } else {
           this.title = '积分排行（我的排名:获取失败，重新进入页面再次获取）'
         }
@@ -40,7 +41,7 @@ export struct RankPage {
       this.title = '积分排行（我的排名:正在获取...）'
       globalVM_User.getUserInfo()
     } else {
-      this.title = '积分排行（我的排名:' + globalVM_User.getUserInfo().coinInfo.rank + '）'
+      this.title = '积分排行（我的排名:' + globalVM_User.getUserInfo()?.coinInfo.rank + '）'
     }
 
     //配置刷新UI
@@ -92,8 +93,8 @@ export struct RankPage {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
@@ -116,7 +117,7 @@ export struct RankPage {
   private listLayout() {
     Stack() {
       List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
-        ForEach(this.datas, (item: any, index: number) => {
+        ForEach(this.datas, (item: IRankInfo, index: number) => {
           ListItem() {
             this.rankInfoItemLayout(item, index)
           }
@@ -135,7 +136,7 @@ export struct RankPage {
   @Builder
   private rankInfoItemLayout(item: IRankInfo, index: number) {
     Row() {
-      if (item.userId === globalVM_User.getLoginInfo().id) {
+      if (item.userId === globalVM_User.getLoginInfo()?.id) {
         Image($r("app.media.ic_arrow_right_indigo500"))
           .width(24)
           .height(24)
@@ -210,7 +211,7 @@ export struct RankPage {
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void) {
+    _reject?: (reason?: CommonType) => void) {
 
     if (isRefresh && this.datas.length === 0) {
       this.pageState = PageState.LOADING

@@ -9,8 +9,7 @@ export struct OptionItemLinkLayout {
   @Link subDesc: string
   onItemClick: () => void = () => {
   }
-  @BuilderParam itemRightLayout: () => void = () => {
-  }
+  @BuilderParam itemRightLayout: () => void
   @Link theme: Wanthemes.IWanTheme
 
   build() {

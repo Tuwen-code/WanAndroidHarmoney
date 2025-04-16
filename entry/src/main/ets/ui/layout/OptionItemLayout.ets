@@ -2,12 +2,11 @@ import { Wanthemes } from '../../theme/WanThemes'
 
 @Component
 export struct OptionItemLayout {
-  desc: string
-  subDesc: string
+  desc: string = ""
+  subDesc: string = ""
   onItemClick: () => void = () => {
   }
-  @BuilderParam itemRightLayout: () => void = () => {
-  }
+  @BuilderParam itemRightLayout: () => void
   @Link theme: Wanthemes.IWanTheme
 
   build() {

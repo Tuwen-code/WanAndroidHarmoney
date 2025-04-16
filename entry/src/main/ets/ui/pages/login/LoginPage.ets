@@ -37,7 +37,7 @@ struct LoginPage {
   private REGULAR_PASSWD: string = '[\u4E00-\u9FA5A-Za-z0-9_]'
   @State loadingMsg: string = '登录中...'
   //弹窗
-  private loadingDialogController: CustomDialogController = new CustomDialogController({
+  private loadingDialogController: CustomDialogController | null = new CustomDialogController({
     builder: LogdingDialog({
       text: this.loadingMsg
     }),
@@ -247,10 +247,10 @@ struct LoginPage {
 
   private handleLogin() {
     if (this.pageType === 0) { //登录
-      this.loadingDialogController.open()
+      this.loadingDialogController?.open()
       globalVM_User.login(this.account, this.passwd)
     } else { //注册
-      this.loadingDialogController.open()
+      this.loadingDialogController?.open()
       globalVM_User.registWithLogin(this.account, this.passwd, this.rePasswd)
 
     }
@@ -260,7 +260,7 @@ struct LoginPage {
   aboutToAppear() {
     //注册登录事件监听
     globalVM_User.subscribeLoginEvent(this.TAG, (event) => {
-      this.loadingDialogController.close()
+      this.loadingDialogController?.close()
       let loginEvent = event.data as LoginRegistEvent
       if (loginEvent.isSuccess) {
         if (this.pageType === 0) {
@@ -270,7 +270,7 @@ struct LoginPage {
         }
         RouterDelegate.back()
       } else {
-        extUIShowToast(loginEvent.errMsg)
+        extUIShowToast(loginEvent?.errMsg ?? "")
       }
     })
   }

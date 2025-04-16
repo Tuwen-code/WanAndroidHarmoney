@@ -8,10 +8,9 @@ export struct PageStateWeight {
   private readonly TAG = "PageStateWeight_" + extUtilsGenerateRadomUUID()
   @Prop pageState: PageState
   @BuilderParam contentLayout: () => void
-  @BuilderParam emptyLayout: () => void = () => {
-    this.defEmptyLayout()
-  }
-  onRetryCallback: () => void
+  @BuilderParam emptyLayout: () => void = this.defEmptyLayout;
+
+  onRetryCallback: () => void = ()=>{}
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
 
   aboutToAppear() {
@@ -84,8 +83,7 @@ export struct PageStateWeight {
     .onClick(this.onRetryCallback)
   }
 
-  @Builder
-  private defEmptyLayout() {
+  @Builder defEmptyLayout() {
     Column() {
       Image($r('app.media.pic_no_data'))
         .height(180)

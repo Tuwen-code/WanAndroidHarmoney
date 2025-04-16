@@ -15,6 +15,7 @@ import { extUIShowToast } from '../../../ext/UIExt';
 import globalVM_Setting from '../../../global/viewmodel/GlobalSettingViewModel';
 import { Wanthemes } from '../../../theme/WanThemes';
 import { IBanner } from '../../../net/wanAPI/response/IBanner';
+import { CommonType } from '../../../ext/TypeExt';
 
 
 @Component
@@ -28,7 +29,8 @@ export struct HomeComponent {
   @State controller: PullToRefreshController = new PullToRefreshController()
   @State private configurator: PullToRefreshConfigurator = new PullToRefreshConfigurator()
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
-  onScroll: (yOffset: number) => void
+  onScroll: (yOffset: number) => void = () => {
+  }
 
   aboutToAppear() {
     this.configurator.setRefreshBackgroundColor(this.theme.REFRESH_BG_COLOR)
@@ -83,9 +85,10 @@ export struct HomeComponent {
   }
 
   private handleCollect(event: CollectEvent) {
+    const articles = this.dataSource.getAllData() as IArticle[];
     if (event.isSuccess) {
       extUIShowToast("已收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      articles.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = true
@@ -94,8 +97,8 @@ export struct HomeComponent {
         }
       })
     } else {
-      for (let index = 0; index < this.dataSource.getAllData().length; index++)
-        this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      for (let index = 0; index < this.dataSource.getAllData().length; index++) {
+        articles.forEach((item: IArticle, index: number) => {
           if (item.id === event.id) {
             item.extIsCollecting = false
             item.collect = false
@@ -103,14 +106,16 @@ export struct HomeComponent {
             return
           }
         })
+      }
       extUIShowToast("收藏失败：" + event.errMsg)
     }
   }
 
   private handleUncollect(event: UncollectEvent) {
+    const articles = this.dataSource.getAllData() as IArticle[];
     if (event.isSuccess) {
       extUIShowToast("取消收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      articles.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = false
@@ -119,8 +124,8 @@ export struct HomeComponent {
         }
       })
     } else {
-      for (let index = 0; index < this.dataSource.getAllData().length; index++)
-        this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      for (let index = 0; index < articles.length; index++) {
+        articles.forEach((item: IArticle, index: number) => {
           if (item.id === event.id) {
             item.extIsCollecting = false
             item.collect = true
@@ -128,6 +133,7 @@ export struct HomeComponent {
             return
           }
         })
+      }
       extUIShowToast("取消收藏失败：" + event.errMsg)
     }
   }
@@ -139,7 +145,7 @@ export struct HomeComponent {
     this.dataSource.getAllData().forEach((item, index) => {
       if (!Array.isArray(item)) {
         if (isLogin) { //登录
-          if (globalVM_User.getLoginInfo().collectIds.includes((item as IArticle).id)) {
+          if (globalVM_User.getLoginInfo()?.collectIds.includes((item as IArticle).id)) {
             (item as IArticle).collect = true
             this.dataSource.notifyDataChange(index)
           }
@@ -191,15 +197,15 @@ export struct HomeComponent {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
   @Builder
   private ListLayout() {
     List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
-      LazyForEach(this.dataSource, (item: any, index: number) => {
+      LazyForEach(this.dataSource, (item: object, index: number) => {
         ListItem() {
           if (Array.isArray(item)) {
             BannerItemLayout({
@@ -210,7 +216,7 @@ export struct HomeComponent {
             })
           } else {
             ArticleItemLayout({
-              article: item,
+              article: item as IArticle,
               theme: this.theme,
               onCollect: (isCollect: boolean, article: IArticle) => {
                 if (globalVM_User.hasLogged()) {
@@ -228,7 +234,8 @@ export struct HomeComponent {
             })
           }
         }
-      }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+      }, (item : object, index) => JSON.stringify(item) +
+        index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
     .onScroll((_xOffset: number, _yOffset: number) => {
       this.onScroll(this.controller.getScroller().currentOffset().yOffset)
@@ -241,7 +248,7 @@ export struct HomeComponent {
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void
+    _reject?: (reason?: CommonType) => void
   ) {
     if (isRefresh && this.dataSource.totalCount() === 0) {
       this.pageState = PageState.LOADING
@@ -261,7 +268,7 @@ export struct HomeComponent {
         this.dataSource.removeAll(true)
       }
       result.datas.forEach((item) => {
-        this.dataSource.addData(item)
+        this.dataSource.addData(item as IArticle)
       })
 
       if (isRefresh) {

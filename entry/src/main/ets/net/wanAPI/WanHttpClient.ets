@@ -20,6 +20,7 @@ import { HttpRequestLoggerInterceptor } from './interceptors/HttpRequestLoggerIn
 import { HttpResponseLoggerInterceptor } from './interceptors/HttpResponseLoggerInterceptor'
 import { ICollectedUrl } from './response/ICollectedUrl'
 import { IShareArticleList } from './response/IShareArticleList'
+import { CommonType } from '../../ext/TypeExt'
 
 
 interface LoginRegistResult {
@@ -35,7 +36,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
   static readonly TIME_OUT = 5000
 
   configurationRequestInterceptor(): List<AxiosClientRequestInterceptor> {
-    let interceptors = new List()
+    let interceptors = new List<AxiosClientRequestInterceptor>()
     //添加拦截器
     interceptors.add(new WanRequestInterceptor())
     interceptors.add(new HttpRequestLoggerInterceptor())
@@ -43,7 +44,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
   }
 
   configurationResponseInterceptor(): List<AxiosClientResponseInterceptor> {
-    let interceptors = new List()
+    let interceptors = new List<AxiosClientResponseInterceptor>()
     //添加拦截器
     interceptors.add(new HttpResponseLoggerInterceptor())
     return interceptors
@@ -64,7 +65,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/banner/json
    * @returns
    */
-  public banner(): Promise<AxiosResponse<IWanCommonResponse<Array<IBanner>>>> {
+  public banner(): Promise<AxiosResponse<IWanCommonResponse<Array<IBanner>>,CommonType>> {
     return this.getRequest("/banner/json")
   }
 
@@ -74,7 +75,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/article/top/json
    * @returns
    */
-  public topArticle(): Promise<AxiosResponse<IWanCommonResponse<Array<IArticle>>>> {
+  public topArticle(): Promise<AxiosResponse<IWanCommonResponse<Array<IArticle>>,CommonType>> {
     return this.getRequest("/article/top/json")
   }
 
@@ -84,7 +85,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param index 下标，从0开始
    * @returns
    */
-  public articleList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>>> {
+  public articleList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>,CommonType>> {
     return this.getRequest("/article/list/" + index + "/json")
   }
 
@@ -196,7 +197,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/lg/coin/userinfo/json
    * @returns
    */
-  public fetchUserInfo(): Promise<AxiosResponse<IWanCommonResponse<IUserInfo>>> {
+  public fetchUserInfo(): Promise<AxiosResponse<IWanCommonResponse<IUserInfo>,CommonType>> {
     return this.getRequest("/user/lg/userinfo/json")
   }
 
@@ -206,7 +207,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param index 下标从1开始
    * @returns
    */
-  public coinList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<ICoinListInfo>>>> {
+  public coinList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<ICoinListInfo>>,CommonType>> {
     return this.getRequest("/lg/coin/list/" + index + "/json")
   }
 
@@ -216,7 +217,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param index 下标从1开始
    * @returns
    */
-  public rankList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IRankInfo>>>> {
+  public rankList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IRankInfo>>,CommonType>> {
     return this.getRequest("/coin/rank/" + index + "/json")
   }
 
@@ -227,7 +228,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param id 文章id
    * @returns
    */
-  public collect(id: number): Promise<AxiosResponse<IWanCommonResponse<any>>> {
+  public collect(id: number): Promise<AxiosResponse<IWanCommonResponse<CommonType>,CommonType>> {
     return this.postRequest("/lg/collect/" + id + "/json")
   }
 
@@ -237,7 +238,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param id 文章id
    * @returns
    */
-  public uncollect(id: number): Promise<AxiosResponse<IWanCommonResponse<any>>> {
+  public uncollect(id: number): Promise<AxiosResponse<IWanCommonResponse<CommonType>,CommonType>> {
     return this.postRequest("/lg/uncollect_originId/" + id + "/json")
   }
 
@@ -246,7 +247,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com//hotkey/json
    * @returns
    * */
-  public hotKey(): Promise<AxiosResponse<IWanCommonResponse<Array<IHotKey>>>> {
+  public hotKey(): Promise<AxiosResponse<IWanCommonResponse<Array<IHotKey>>,CommonType>> {
     return this.getRequest("/hotkey/json")
   }
 
@@ -257,26 +258,24 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * @param index 页码 从0开始
    * @returns
    */
-  public query(words: string, index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>>> {
-    return this.postRequest("/article/query/" + index + "/json",
-      {},
-      {
-        headers: {
-          "Content-Type": 'text/plain; charset=UTF-8',
-        },
-        params: {
-          k: words
-        }
+  public query(words: string, index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>,CommonType>> {
+    return this.postRequest("/article/query/" + index + "/json",'',{
+      headers: {
+        "Content-Type": 'text/plain; charset=UTF-8',
+      },
+      params: {
+        k: words
       }
-    )
+    })
   }
+
 
   /**
    * 搜藏文章列表
    * https://www.wanandroid.com/lg/collect/list/{index}/json
    * @param index 页码 从0开始
    */
-  public collectList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>>> {
+  public collectList(index: number): Promise<AxiosResponse<IWanCommonResponse<IWanCommonListData<IArticle>>,CommonType>> {
     return this.getRequest("/lg/collect/list/" + index + "/json")
   }
 
@@ -285,7 +284,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/lg/collect/usertools/json
    * @returns
    */
-  public collectUrlList(): Promise<AxiosResponse<IWanCommonResponse<Array<ICollectedUrl>>>> {
+  public collectUrlList(): Promise<AxiosResponse<IWanCommonResponse<Array<ICollectedUrl>>,CommonType>> {
     return this.getRequest("/lg/collect/usertools/json")
   }
 
@@ -294,10 +293,10 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/lg/collect/deletetool/json
    * @param id 网址id
    */
-  public uncollectUrl(id: number): Promise<AxiosResponse<IWanCommonResponse<any>>> {
+  public uncollectUrl(id: number): Promise<AxiosResponse<IWanCommonResponse<CommonType>,CommonType>> {
     return this.postRequest(
       "/lg/collect/deletetool/json",
-      {},
+      "",
       {
         params: {
           id: id
@@ -311,7 +310,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://wanandroid.com/user/lg/private_articles/{index}/json
    * @param index 页码，从1开始
    */
-  public sharedArticleList(index: number): Promise<AxiosResponse<IWanCommonResponse<IShareArticleList>>> {
+  public sharedArticleList(index: number): Promise<AxiosResponse<IWanCommonResponse<IShareArticleList>,CommonType>> {
     return this.getRequest(
       "/user/lg/private_articles/" + index + "/json"
     )
@@ -324,7 +323,7 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * 参数：文章id，拼接在链接上
    * @returns
    */
-  public deleteSharedArticle(id: number): Promise<AxiosResponse<IWanCommonResponse<any>>> {
+  public deleteSharedArticle(id: number): Promise<AxiosResponse<IWanCommonResponse<CommonType>,CommonType>> {
     return this.postRequest(
       "/lg/user_article/delete/" + id + "/json"
     )
@@ -337,10 +336,10 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * title:
    * link
    */
-  public shareArticle(title: string, link: string): Promise<AxiosResponse<IWanCommonResponse<any>>> {
+  public shareArticle(title: string, link: string): Promise<AxiosResponse<IWanCommonResponse<CommonType>,CommonType>> {
     return this.postRequest(
       "/lg/user_article/add/json",
-      {},
+      "",
       {
         params: {
           title: title,
@@ -354,10 +353,10 @@ export class WanHttpClient extends BaseAxiosDelegate {
    * https://www.wanandroid.com/lg/collect/addtool/json
    * 收藏网址
    */
-  public collectUrl(name: string, link: string): Promise<AxiosResponse<IWanCommonResponse<ICollectedUrl>>> {
+  public collectUrl(name: string, link: string): Promise<AxiosResponse<IWanCommonResponse<ICollectedUrl>,CommonType>> {
     return this.postRequest(
       "lg/collect/addtool/json",
-      {},
+      "",
       {
         params: {
           name: name,

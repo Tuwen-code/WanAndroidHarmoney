@@ -16,6 +16,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import shareViewModel from '../../../viewmodel/ShareViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 @Entry
 @Component
@@ -31,7 +32,7 @@ export struct ShareListPage {
   @State private loadingMsg: string = '删除中...'
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   //loading弹窗
-  private loadingDialogController: CustomDialogController = new CustomDialogController({
+  private loadingDialogController: CustomDialogController|null = new CustomDialogController({
     builder: LogdingDialog({
       text: this.loadingMsg
     }),
@@ -47,17 +48,17 @@ export struct ShareListPage {
     //弹窗容器样式是否自定义。默认值：false，弹窗容器的宽度根据栅格系统自适应，不跟随子节点；高度自适应子节点，最大为窗口高度的90%；圆角为24vp。
     customStyle: false
   })
-  private deleteComfrimDialogController: CustomDialogController = new CustomDialogController({
+  private deleteComfrimDialogController: CustomDialogController|null = new CustomDialogController({
     builder: ComfrimDialog({
       message: '是否删除文章 \n \n《' + (this.dataSource.getData(this.editItemIndex) as IArticle).title + '》',
       onComfrim: () => {
-        this.deleteComfrimDialogController.close()
-        this.loadingDialogController.open()
+        this.deleteComfrimDialogController?.close()
+        this.loadingDialogController?.open()
         const id = (this.dataSource.getData(this.editItemIndex) as IArticle).id
         this.deleteSharedArticleAsync(id)
       },
       onCancel: () => {
-        this.deleteComfrimDialogController.close()
+        this.deleteComfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -74,7 +75,7 @@ export struct ShareListPage {
     customStyle: false
   })
   //弹窗
-  private editComfrimDialogController: CustomDialogController = new CustomDialogController({
+  private editComfrimDialogController: CustomDialogController|null = new CustomDialogController({
     builder: EditArticlePromptDialog({
       title: '修改文章',
       message: '《' + (this.dataSource.getData(this.editItemIndex) as IArticle).title + '》',
@@ -83,11 +84,11 @@ export struct ShareListPage {
         RouterDelegate.toShareArticlePage(article.id, article.title, article.link)
       },
       onDelete: () => {
-        this.editComfrimDialogController.close()
-        this.deleteComfrimDialogController.open()
+        this.editComfrimDialogController?.close()
+        this.deleteComfrimDialogController?.open()
       },
       onClose: () => {
-        this.editComfrimDialogController.close()
+        this.editComfrimDialogController?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -132,7 +133,7 @@ export struct ShareListPage {
   }
 
   onPageShow() {
-    const refresh: boolean = RouterDelegate.getParams()['refresh']
+    const refresh: boolean = RouterDelegate.getParams()?.['refresh']
     if (refresh) {
       this.loadDataAsync(true)
     }
@@ -203,25 +204,25 @@ export struct ShareListPage {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
   @Builder
   private listLayout() {
     List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
-      LazyForEach(this.dataSource, (item: any, index: number) => {
+      LazyForEach(this.dataSource, (item: CommonType, index: number) => {
         ListItem() {
           ArticleItemLayout({
-            article: item,
+            article: item as IArticle,
             theme: this.theme,
             onItemClick: (item: IArticle) => {
               extUIShowToast("点击事件：" + item.title)
             },
             onItemLongClick: (_item: IArticle, _event: GestureEvent) => {
               this.editItemIndex = index
-              this.editComfrimDialogController.open()
+              this.editComfrimDialogController?.open()
             },
             onCollect: (isCollect: boolean, item: IArticle) => {
               item.extIsCollecting = true
@@ -234,7 +235,7 @@ export struct ShareListPage {
             }
           })
         }
-      }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+      }, (item : object, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
     .width('100%')
     .height('100%')
@@ -242,9 +243,10 @@ export struct ShareListPage {
   }
 
   private handleCollect(event: CollectEvent) {
+    let articleList =  this.dataSource.getAllData() as IArticle[]
     if (event.isSuccess) {
       extUIShowToast("已收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      articleList.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = true
@@ -254,7 +256,7 @@ export struct ShareListPage {
       })
     } else {
       for (let index = 0; index < this.dataSource.getAllData().length; index++)
-        this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+        articleList.forEach((item: IArticle, index: number) => {
           if (item.id === event.id) {
             item.extIsCollecting = false
             item.collect = false
@@ -267,9 +269,10 @@ export struct ShareListPage {
   }
 
   private handleUncollect(event: UncollectEvent) {
+    let articleList =  this.dataSource.getAllData() as IArticle[]
     if (event.isSuccess) {
       extUIShowToast("取消收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      articleList.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = false
@@ -278,7 +281,7 @@ export struct ShareListPage {
         }
       })
     } else {
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      articleList.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = true
@@ -295,7 +298,7 @@ export struct ShareListPage {
       const result = await shareViewModel.deleteSharedArticleAsync(id)
       let deletedIndex: number = -1
       for (let index = 0; index < this.dataSource.totalCount() - 1; index++) {
-        if (result.id === this.dataSource.getData(index).id) {
+        if (result.id === (this.dataSource.getData(index) as IArticle).id) {
           deletedIndex = index
           break
         }
@@ -310,13 +313,13 @@ export struct ShareListPage {
     } catch (err) {
       extUIShowToast("删除文章失败：" + err)
     }
-    this.loadingDialogController.close()
+    this.loadingDialogController?.close()
   }
 
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void) {
+    _reject?: (reason?: CommonType) => void) {
 
     if (isRefresh && this.dataSource.totalCount() === 0) {
       this.pageState = PageState.LOADING

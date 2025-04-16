@@ -4,9 +4,9 @@ import { Wanthemes } from '../../theme/WanThemes'
 
 @Component
 export struct ActionBarSearchWeight {
-  onBackPress: () => void
-  onSearchPress: (words: string) => void
-  onInputChange: (currentWords: string) => void
+  onBackPress: () => void = ()=>{}
+  onSearchPress: (words: string) => void = ()=>{}
+  onInputChange: (currentWords: string) => void = () => {}
   private controller: TextInputController = new TextInputController()
   @Link words: string
   @Link searchHint: string

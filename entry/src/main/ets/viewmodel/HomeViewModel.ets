@@ -1,10 +1,11 @@
+import { CommonType } from '../ext/TypeExt'
 import globalVM_Setting from '../global/viewmodel/GlobalSettingViewModel'
 import { IArticle } from '../net/wanAPI/response/IArticle'
 import wanHttpClient from '../net/wanAPI/WanHttpClient'
 
 export interface HomeDataResult {
   over: boolean,
-  datas: Array<any>,
+  datas: Array<CommonType>,
 }
 
 export class HomeViewModel {
@@ -24,7 +25,7 @@ export class HomeViewModel {
           const bannerResp = responses[0]
           const topArticleResp = responses[1]
           const articlesResp = responses[2]
-          const retList = Array<any>()
+          const retList = Array<CommonType>()
 
           //处理banner 如果banner响应失败无需处理，响应成功
           if (bannerResp.data.errorCode === 0) {

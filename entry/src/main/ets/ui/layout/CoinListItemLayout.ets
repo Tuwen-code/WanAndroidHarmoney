@@ -4,12 +4,12 @@ import { Wanthemes } from '../../theme/WanThemes'
 
 @Component
 export struct CoinListItemLayout {
-  item: ICoinListInfo
-  theme: Wanthemes.IWanTheme
+  item: ICoinListInfo | null = null
+  theme: Wanthemes.IWanTheme | null = null
 
   build() {
     Flex({ direction: FlexDirection.Row }) {
-      Text(this.item.reason)
+      Text(this.item?.reason)
         .fontSize(18)
         .textAlign(TextAlign.Center)
         .width('30%')
@@ -17,15 +17,15 @@ export struct CoinListItemLayout {
         .fontColor(Color.Orange)
 
       Column() {
-        Text(this.item.desc.split(',')[1])
-          .fontColor(this.theme.TEXT_COLOR)
+        Text(this.item?.desc.split(',')[1])
+          .fontColor(this.theme?.TEXT_COLOR)
           .fontSize(16)
 
-        Text(this.item.desc.split(',')[0].substring(0, 16))
+        Text(this.item?.desc.split(',')[0].substring(0, 16))
           .margin({
             top: 8
           })
-          .fontColor(this.theme.TEXT_SEC_COLOR)
+          .fontColor(this.theme?.TEXT_SEC_COLOR)
           .fontSize(14)
       }
       .align(Alignment.Center)
@@ -33,15 +33,15 @@ export struct CoinListItemLayout {
       .width('70%')
       .height('100%')
 
-      Text('+' + this.item.coinCount)
+      Text('+' + this.item?.coinCount)
         .fontSize(18)
         .textAlign(TextAlign.Center)
         .width('20%')
         .height('100%')
-        .fontColor(this.theme.TEXT_SEC_COLOR)
+        .fontColor(this.theme?.TEXT_SEC_COLOR)
     }
     .width('100%')
     .height(58)
-    .backgroundColor(this.theme.BG_COLOR)
+    .backgroundColor(this.theme?.BG_COLOR)
   }
 }

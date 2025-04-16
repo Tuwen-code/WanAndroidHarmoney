@@ -156,8 +156,8 @@ export struct MineComponent {
     //配置数据
     if (globalVM_User.hasLogged()) {
       let loginInfo = globalVM_User.getLoginInfo()
-      this.userNameText = loginInfo.nickname
-      this.coinText = loginInfo.coinCount.toString()
+      this.userNameText = loginInfo?.nickname??""
+      this.coinText = loginInfo?.coinCount.toString() ?? ""
     } else {
       this.userNameText = '登录 Wanandroid'
       this.coinText = '-- --'
@@ -165,7 +165,7 @@ export struct MineComponent {
 
     let userInfo = globalVM_User.getUserInfo()
     if (userInfo !== null) {
-      this.rankLevelText = '等 级: ' + userInfo.coinInfo.level + '   排 名: ' + userInfo.coinInfo.rank
+      this.rankLevelText = '等 级: ' + userInfo?.coinInfo.level + '   排 名: ' + userInfo?.coinInfo.rank
     } else {
       this.rankLevelText = '等 级: -- --   排 名: -- --'
     }
@@ -202,7 +202,7 @@ export struct MineComponent {
       } else {
         let info = globalVM_User.getUserInfo()
         if (info !== null) {
-          this.rankLevelText = '等 级: ' + info.coinInfo.level + '   排 名: ' + info.coinInfo.rank
+          this.rankLevelText = '等 级: ' + info?.coinInfo.level + '   排 名: ' + info?.coinInfo.rank
         } else {
           this.rankLevelText = '等 级: -- --   排 名: -- --'
         }
@@ -214,8 +214,8 @@ export struct MineComponent {
 
   private async handleLoginEvent(event: LoginRegistEvent) {
     if (event.isSuccess) {
-      this.userNameText = globalVM_User.getLoginInfo().nickname
-      this.coinText = globalVM_User.getLoginInfo().coinCount.toString()
+      this.userNameText = globalVM_User.getLoginInfo()?.nickname ?? ""
+      this.coinText = globalVM_User.getLoginInfo()?.coinCount.toString() ?? ""
       this.avatarRes = await globalVM_Setting.getAvatar()
     }
   }

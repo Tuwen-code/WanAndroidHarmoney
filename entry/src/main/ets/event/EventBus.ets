@@ -16,7 +16,7 @@ export default class EventBus {
   }
 
   regist(id: number, key: string, callback: (eventData: emitter.EventData) => void) {
-    var keyMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
+    let keyMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
 
     if (keyMap === undefined) {
       this.subscribers[id] = new Map<string, (eventData: emitter.EventData) => void>()
@@ -29,7 +29,7 @@ export default class EventBus {
       }
 
       emitter.on(event, (event) => {
-        var targetMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
+        let targetMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
         targetMap.forEach((cb) => {
           cb(event)
         })
@@ -41,7 +41,7 @@ export default class EventBus {
 
 
   unregistByKey(id: number, key: string) {
-    var keyMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
+    let keyMap = this.subscribers[id] as Map<string, (eventData: emitter.EventData) => void>
     if (keyMap !== null) {
       keyMap.delete(key)
     }
@@ -52,9 +52,9 @@ export default class EventBus {
     this.subscribers.delete(id)
   }
 
-  post(id: number, data?: {
-    [key: string]: any;
-  }) {
+
+  post(id: number, data?: object
+  ) {
     let event: emitter.InnerEvent = {
       eventId: id,
       priority: emitter.EventPriority.IMMEDIATE //事件立即被投递
@@ -64,4 +64,10 @@ export default class EventBus {
     }
     emitter.emit(event, eventdata)
   }
+}
+
+// 定义明确字段的接口
+interface PostData {
+
+  dynamicFields?: Map<string, string | number | boolean>;  // 动态字段使用 Map，限定值类型
 }

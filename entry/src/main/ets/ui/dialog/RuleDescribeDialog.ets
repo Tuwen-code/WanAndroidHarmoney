@@ -6,7 +6,7 @@ import globalVM_Setting from '../../global/viewmodel/GlobalSettingViewModel'
 @CustomDialog
 export struct RuleDescribeDialog {
   controller?: CustomDialogController
-  content: Resource
+  content?: Resource
 
   build() {
     Column() {

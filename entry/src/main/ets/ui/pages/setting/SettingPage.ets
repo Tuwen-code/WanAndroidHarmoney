@@ -26,15 +26,15 @@ export struct SettingPage {
   @State private appCacheText: string = "0 KB"
   @State private avatarRes: Resource = $r('app.media.avatar1')
   @State private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
-  private confirmClearCacheDialog: CustomDialogController = new CustomDialogController({
+  private confirmClearCacheDialog: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
       message: "是否清除应用缓存？",
       onComfrim: () => {
-        this.confirmClearCacheDialog.close()
+        this.confirmClearCacheDialog?.close()
         this.clearCache()
       },
       onCancel: () => {
-        this.confirmClearCacheDialog.close()
+        this.confirmClearCacheDialog?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -50,16 +50,16 @@ export struct SettingPage {
     //弹窗容器样式是否自定义。默认值：false，弹窗容器的宽度根据栅格系统自适应，不跟随子节点；高度自适应子节点，最大为窗口高度的90%；圆角为24vp。
     customStyle: false
   })
-  private confirmLoginOutDialog: CustomDialogController = new CustomDialogController({
+  private confirmLoginOutDialog: CustomDialogController | null = new CustomDialogController({
     builder: ComfrimDialog({
-      message: "退出当前账号: " + globalVM_User.getLoginInfo().username,
+      message: "退出当前账号: " + globalVM_User.getLoginInfo()?.username,
       onComfrim: () => {
         globalVM_User.loginOut()
-        this.confirmLoginOutDialog.close()
+        this.confirmLoginOutDialog?.close()
         extUIShowToast('已登出')
       },
       onCancel: () => {
-        this.confirmLoginOutDialog.close()
+        this.confirmLoginOutDialog?.close()
       }
     }),
     // 点击遮障层退出时的回调
@@ -166,7 +166,7 @@ export struct SettingPage {
           desc: this.clearCacheDesc,
           subDesc: this.appCacheText,
           onItemClick: () => {
-            this.confirmClearCacheDialog.open()
+            this.confirmClearCacheDialog?.open()
           },
           theme: this.theme
         })
@@ -176,7 +176,7 @@ export struct SettingPage {
             desc: '退出登录',
             subDesc: '退出当前账号登录状态',
             onItemClick: () => {
-              this.confirmLoginOutDialog.open()
+              this.confirmLoginOutDialog?.open()
             },
             theme: this.theme
           })

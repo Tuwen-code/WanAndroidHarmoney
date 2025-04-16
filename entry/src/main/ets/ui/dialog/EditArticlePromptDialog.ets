@@ -7,8 +7,8 @@ import { Wanthemes } from '../../theme/WanThemes'
 @CustomDialog
 export struct EditArticlePromptDialog {
   controller?: CustomDialogController
-  title: string
-  message: string
+  title: string = ""
+  message: string = ""
   onClose: () => void = () => {
   }
   onEdit: () => void = () => {

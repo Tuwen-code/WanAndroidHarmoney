@@ -8,8 +8,8 @@ import { Wanthemes } from '../../theme/WanThemes'
 @CustomDialog
 export struct CollectUrlDialog {
   controller?: CustomDialogController
-  onComfrim: (title: string, link: string) => void
-  onCancel: () => void
+  onComfrim: (title: string, link: string) => void = () =>{}
+  onCancel: () => void = () =>{}
 
   private theme: Wanthemes.IWanTheme = globalVM_Setting.getTheme()
   @State private editingTitle: string = ''

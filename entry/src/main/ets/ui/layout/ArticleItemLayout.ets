@@ -8,7 +8,7 @@ import { Wanthemes } from '../../theme/WanThemes'
  */
 @Component
 export struct ArticleItemLayout {
-  article: IArticle
+  article : IArticle | null = null
   onCollect: (isCollect: boolean, article: IArticle) => void = () => {
   }
   onItemClick: (article: IArticle) => void = () => {
@@ -23,10 +23,10 @@ export struct ArticleItemLayout {
     $r('app.color.yellow500'),
 
   ]
-  private title: string[]
+  private title?: string[]
 
   aboutToAppear() {
-    this.title = this.splitHighlightedText(this.article.title)
+    this.title = this.splitHighlightedText(this.article?.title ?? "")
   }
 
   build() {
@@ -50,7 +50,7 @@ export struct ArticleItemLayout {
 
         Blank()
 
-        Text(this.article.niceShareDate)
+        Text(this.article?.niceShareDate)
           .fontSize(12)
           .margin({
             left: 8,
@@ -85,18 +85,20 @@ export struct ArticleItemLayout {
         bottom: 12,
       })
       .onClick(() => {
-        this.onItemClick(this.article)
-        RouterDelegate.toWebPage(this.article.link)
+        if(this.article !== null){
+          this.onItemClick(this.article)
+          RouterDelegate.toWebPage(this.article.link)
+        }
       })
 
       //底部TAG以及like
       Row() {
-        Text(this.article.superChapterName + '-' + this.article.chapterName)
+        Text(this.article?.superChapterName + '-' + this.article?.chapterName)
           .fontSize(12)
           .padding(8)
           .fontColor(Color.Green)
         Blank()
-        if (this.article.extIsCollecting) {
+        if (this.article?.extIsCollecting) {
           LoadingProgress()
             .color(this.theme.PROGRESS_COLOR)
             .width(30)
@@ -105,7 +107,7 @@ export struct ArticleItemLayout {
               right: 8,
             })
         } else {
-          if (this.article.collect) {
+          if (this.article?.collect) {
             Image($r('app.media.ic_collected'))
               .width(26)
               .height(26)
@@ -114,7 +116,10 @@ export struct ArticleItemLayout {
                 right: 8,
               })
               .onClick(() => {
-                this.onCollect(false, this.article)
+                if(this.article !== null){
+                  this.onCollect(false, this.article)
+                }
+
               })
           } else {
             Image($r('app.media.ic_uncollect'))
@@ -125,7 +130,9 @@ export struct ArticleItemLayout {
                 right: 8,
               })
               .onClick(() => {
-                this.onCollect(true, this.article)
+                if(this.article !== null) {
+                  this.onCollect(true, this.article)
+                }
               })
           }
         }
@@ -135,8 +142,10 @@ export struct ArticleItemLayout {
     .backgroundColor(this.theme.BG_COLOR)
     .width('100%')
     .onClick(() => {
-      this.onItemClick(this.article)
-      RouterDelegate.toWebPage(this.article.link)
+      if(this.article !== null) {
+        this.onItemClick(this.article)
+        RouterDelegate.toWebPage(this.article.link)
+      }
     })
     .gesture(
       LongPressGesture({ repeat: false })
@@ -162,7 +171,7 @@ export struct ArticleItemLayout {
 
         Blank()
 
-        Text(this.article.niceShareDate)
+        Text(this.article?.niceShareDate)
           .fontSize(12)
           .margin({
             left: 8,
@@ -174,7 +183,7 @@ export struct ArticleItemLayout {
 
       //标题内容
       Flex({ direction: FlexDirection.Row }) {
-        Image(this.article.envelopePic)// 直接加载网络地址，请填写一个具体的网络图片地址
+        Image(this.article?.envelopePic)// 直接加载网络地址，请填写一个具体的网络图片地址
           .alt($r('app.media.pic_image_placeholder'))// 使用alt，在网络图片加载成功前使用占位图
           .objectFit(ImageFit.Fill)
           .width(120)
@@ -199,12 +208,14 @@ export struct ArticleItemLayout {
           .fontSize(18)
           .textAlign(TextAlign.Start)
           .onClick(() => {
-            this.onItemClick(this.article)
-            RouterDelegate.toWebPage(this.article.link)
+            if(this.article !== null) {
+              this.onItemClick(this.article)
+              RouterDelegate.toWebPage(this.article.link)
+            }
           })
 
 
-          Text(this.article.desc)
+          Text(this.article?.desc)
             .width('100%')
             .fontSize(12)
             .textAlign(TextAlign.Start)
@@ -230,12 +241,12 @@ export struct ArticleItemLayout {
 
       //底部TAG以及like
       Row() {
-        Text(this.article.superChapterName + '-' + this.article.chapterName)
+        Text(this.article?.superChapterName + '-' + this.article?.chapterName)
           .fontSize(12)
           .padding(8)
           .fontColor(Color.Green)
         Blank()
-        if (this.article.extIsCollecting) {
+        if (this.article?.extIsCollecting) {
           LoadingProgress()
             .color(this.theme.PROGRESS_COLOR)
             .width(30)
@@ -244,7 +255,7 @@ export struct ArticleItemLayout {
               right: 8,
             })
         } else {
-          if (this.article.collect) {
+          if (this.article?.collect) {
             Image($r('app.media.ic_collected'))
               .width(26)
               .height(26)
@@ -253,7 +264,9 @@ export struct ArticleItemLayout {
                 right: 8,
               })
               .onClick(() => {
-                this.onCollect(false, this.article)
+                if(this.article !== null) {
+                  this.onCollect(false, this.article)
+                }
               })
           } else {
             Image($r('app.media.ic_uncollect'))
@@ -264,7 +277,9 @@ export struct ArticleItemLayout {
                 right: 8,
               })
               .onClick(() => {
-                this.onCollect(true, this.article)
+                if(this.article !== null) {
+                  this.onCollect(true, this.article)
+                }
               })
           }
         }
@@ -274,8 +289,10 @@ export struct ArticleItemLayout {
     .backgroundColor(this.theme.BG_COLOR)
     .width('100%')
     .onClick(() => {
-      this.onItemClick(this.article)
-      RouterDelegate.toWebPage(this.article.link)
+      if(this.article !== null) {
+        this.onItemClick(this.article)
+        RouterDelegate.toWebPage(this.article.link)
+      }
     })
     .gesture(
       LongPressGesture({ repeat: false })
@@ -289,8 +306,8 @@ export struct ArticleItemLayout {
   }
 
   private getAuthorName(): string {
-    if (this.article.author !== "") {
-      return this.article.author
+    if (this.article?.author !== "") {
+      return this.article?.author??""
     } else if (this.article.shareUser !== "") {
       return this.article.shareUser
     } else {
@@ -300,13 +317,13 @@ export struct ArticleItemLayout {
 
   //判断数据会否是项目（根据是否有图片判断）
   private isProject(): boolean {
-    return this.article.envelopePic !== ""
+    return this.article?.envelopePic !== ""
   }
 
   @Builder
   tagComponent() {
     Row() {
-      if (this.article.type === 1) {
+      if (this.article?.type === 1) {
         Text('置顶')
           .margin({
             left: 6
@@ -323,7 +340,7 @@ export struct ArticleItemLayout {
           .fontSize(10)
       }
 
-      if (this.article.fresh) {
+      if (this.article?.fresh) {
         Text('新')
           .margin({
             left: 6
@@ -340,7 +357,7 @@ export struct ArticleItemLayout {
           .fontSize(10)
       }
 
-      ForEach(this.article.tags, (value: IArticleTag, index: number) => {
+      ForEach(this.article?.tags, (value: IArticleTag, index: number) => {
         Text(value.name)
           .margin({
             left: 6

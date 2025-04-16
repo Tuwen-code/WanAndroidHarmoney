@@ -2,7 +2,7 @@ import { TabItem } from '../pojo/TabItem'
 
 export class MainViewModel {
   pages = []
-  private
+
   tabTitles = [
     new TabItem(0, "文章"),
     new TabItem(1, "我的"),

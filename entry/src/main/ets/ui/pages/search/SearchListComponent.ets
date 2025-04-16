@@ -13,6 +13,7 @@ import { PullToRefresh } from '../../weight/pullToRefresh/PullToRefresh'
 import { PullToRefreshConfigurator } from '../../weight/pullToRefresh/PullToRefreshConfigurator'
 import { PullToRefreshController } from '../../weight/pullToRefresh/PullToRefreshController'
 import searchListViewModel from '../../../viewmodel/SearchListViewModel'
+import { CommonType } from '../../../ext/TypeExt'
 
 @Component
 export struct SearchListComponent {
@@ -83,18 +84,18 @@ export struct SearchListComponent {
           this.loadDataAsync(false, resolve, reject)
         })
       },
-      customLoad: null,
-      customRefresh: null,
+      customLoad: undefined,
+      customRefresh: undefined,
     })
   }
 
   @Builder
   private ListLayout() {
     List({ space: 0, initialIndex: 0, scroller: this.controller.getScroller() }) {
-      LazyForEach(this.dataSource, (item: any, index: number) => {
+      LazyForEach(this.dataSource, (item: CommonType, index: number) => {
         ListItem() {
           ArticleItemLayout({
-            article: item,
+            article: item as IArticle,
             theme: this.theme,
             onCollect: (isCollect: boolean, article: IArticle) => {
               if (globalVM_User.hasLogged()) {
@@ -111,7 +112,7 @@ export struct SearchListComponent {
             }
           })
         }
-      }, (item, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
+      }, (item : object, index) => JSON.stringify(item) + index) //TODO 坑：这里需要实现LazyForEach的keyGenerator，配置每一个item的key值才能根据index操作DataSource更新（如notifyDataChange）
     }
     .width('100%')
     .height('100%')
@@ -119,9 +120,10 @@ export struct SearchListComponent {
   }
 
   private handleCollect(event: CollectEvent) {
+    let dataList = this.dataSource.getAllData() as IArticle[]
     if (event.isSuccess) {
       extUIShowToast("已收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      dataList.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = true
@@ -131,7 +133,7 @@ export struct SearchListComponent {
       })
     } else {
       for (let index = 0; index < this.dataSource.getAllData().length; index++)
-        this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+        dataList.forEach((item: IArticle, index: number) => {
           if (item.id === event.id) {
             item.extIsCollecting = false
             item.collect = false
@@ -144,9 +146,10 @@ export struct SearchListComponent {
   }
 
   private handleUncollect(event: UncollectEvent) {
+    let dataList = this.dataSource.getAllData() as IArticle[]
     if (event.isSuccess) {
       extUIShowToast("取消收藏")
-      this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+      dataList.forEach((item: IArticle, index: number) => {
         if (item.id === event.id) {
           item.extIsCollecting = false
           item.collect = false
@@ -156,7 +159,7 @@ export struct SearchListComponent {
       })
     } else {
       for (let index = 0; index < this.dataSource.getAllData().length; index++)
-        this.dataSource.getAllData().forEach((item: IArticle, index: number) => {
+        dataList.forEach((item: IArticle, index: number) => {
           if (item.id === event.id) {
             item.extIsCollecting = false
             item.collect = true
@@ -176,7 +179,7 @@ export struct SearchListComponent {
   private async loadDataAsync(
     isRefresh: boolean,
     resolve?: (value: string | PromiseLike<string>) => void,
-    _reject?: (reason?: any) => void) {
+    _reject?: (reason?: CommonType) => void) {
 
     try {
       const result = await searchListViewModel.searchAsync(isRefresh, this.searchWords)
